@@ -5,45 +5,13 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import AdSenseSlot from "@/components/AdSenseSlot";
+import { getCountryById } from "@/data/countries";
+import { getBlogById } from "@/data/blogs";
 
 const Country = () => {
   const { countryId } = useParams();
-
-  // Mock data - in a real app, this would come from an API
-  const countryData = {
-    france: {
-      name: "France",
-      description: "France, officially the French Republic, is a country located primarily in Western Europe. Known for its rich history, cultural heritage, exquisite cuisine, and iconic landmarks, France remains one of the world's most popular tourist destinations.",
-      overview: "From the romantic streets of Paris to the sun-soaked beaches of the French Riviera, France offers an incredible diversity of experiences. The country is renowned for its art, architecture, cuisine, and wine, making it a cultural powerhouse that has influenced the world for centuries.",
-      image: "https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=1200&h=600&fit=crop",
-      capital: "Paris",
-      population: "68 million",
-      language: "French",
-      currency: "Euro (EUR)",
-      bestTime: "April to October",
-      cities: [
-        { id: "paris", name: "Paris", description: "The City of Light", image: "https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=400&h=300&fit=crop" },
-        { id: "nice", name: "Nice", description: "French Riviera gem", image: "https://images.unsplash.com/photo-1539650116574-75c0c6d4b9d6?w=400&h=300&fit=crop" },
-        { id: "lyon", name: "Lyon", description: "Culinary capital", image: "https://images.unsplash.com/photo-1524820197278-540916411e20?w=400&h=300&fit=crop" },
-        { id: "marseille", name: "Marseille", description: "Historic port city", image: "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=400&h=300&fit=crop" }
-      ],
-      attractions: [
-        "Eiffel Tower",
-        "Louvre Museum", 
-        "Notre-Dame Cathedral",
-        "Palace of Versailles",
-        "Mont-Saint-Michel",
-        "Château de Chambord"
-      ],
-      blogs: [
-        { id: "paris-hidden-gems", title: "10 Hidden Gems in Paris", date: "2024-01-15" },
-        { id: "provence-lavender", title: "Lavender Fields of Provence", date: "2024-01-10" },
-        { id: "french-cuisine-guide", title: "A Guide to French Cuisine", date: "2024-01-05" }
-      ]
-    }
-  };
-
-  const country = countryData[countryId as keyof typeof countryData];
+  const country = getCountryById(countryId || '');
 
   if (!country) {
     return (
@@ -167,7 +135,7 @@ const Country = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {country.cities.map((city) => (
-                <Link key={city.id} to={`/city/${city.id}`}>
+                <Link key={city.id} to={`/country/${countryId}/city/${city.id}`}>
                   <Card className="group overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 bg-card border-0">
                     <div 
                       className="h-40 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
@@ -184,6 +152,12 @@ const Country = () => {
                 </Link>
               ))}
             </div>
+            
+            <AdSenseSlot 
+              adSlot="1234567890"
+              adFormat="horizontal"
+              className="mt-12"
+            />
           </div>
         </section>
 
@@ -195,24 +169,38 @@ const Country = () => {
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {country.blogs.map((blog) => (
-                <Link key={blog.id} to={`/blog/${blog.id}`}>
-                  <Card className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 bg-card border-0 p-6">
-                    <CardContent className="p-0 space-y-3">
-                      <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                        {blog.title}
-                      </h3>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(blog.date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">
-                        Read More →
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+              {country.blogs.map((blog) => {
+                const blogData = getBlogById(blog.id);
+                return (
+                  <Link key={blog.id} to={`/blog/${blog.id}`}>
+                    <Card className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 bg-card border-0 overflow-hidden">
+                      {blogData?.image && (
+                        <div 
+                          className="h-32 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+                          style={{ backgroundImage: `url(${blogData.image})` }}
+                        />
+                      )}
+                      <CardContent className="p-6 space-y-3">
+                        <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                          {blog.title}
+                        </h3>
+                        {blogData?.excerpt && (
+                          <p className="text-muted-foreground text-sm line-clamp-2">
+                            {blogData.excerpt}
+                          </p>
+                        )}
+                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                          <span>{new Date(blog.date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">
+                          Read More →
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>

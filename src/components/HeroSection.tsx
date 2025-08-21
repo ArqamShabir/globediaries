@@ -31,10 +31,10 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8 py-8">
           {/* Main Heading */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-center space-x-3 mb-4">
+          <div className="space-y-6">
+            <div className="flex items-center justify-center space-x-3 mb-6">
               <Globe className="h-8 w-8 text-secondary" />
               <h1 className="font-display text-5xl md:text-7xl font-bold text-white">
                 GlobeDiaries
