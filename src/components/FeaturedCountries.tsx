@@ -81,7 +81,7 @@ const FeaturedCountries = () => {
         </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredCountries.map((country) => (
+            {countries.filter(country => country.featured).map((country) => (
             <Link key={country.id} to={`/country/${country.id}`}>
               <Card className="group overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 bg-card border-0">
                 <div className="relative">
