@@ -9,9 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdSenseSlot from "@/components/AdSenseSlot";
-import { countries } from "@/data/countries";
-import { getAllCities } from "@/data/countries";
-import { blogPosts } from "@/data/blogs";
+import { countries, getAllCities } from "@/data/countries";
+import { fetchWordPressPosts, formatBlogPost } from "@/data/blogs";
 
 interface SearchResult {
   id: string;
@@ -31,10 +30,25 @@ const SearchPage = () => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [filter, setFilter] = useState<'all' | 'countries' | 'cities' | 'blogs'>('all');
   const [sortBy, setSortBy] = useState<'relevance' | 'date' | 'alphabetical'>('relevance');
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const loadBlogPosts = async () => {
+      try {
+        const posts = await fetchWordPressPosts('', '', 1, 50);
+        const formattedPosts = posts.map(formatBlogPost);
+        setBlogPosts(formattedPosts);
+      } catch (error) {
+        console.error('Error loading blog posts:', error);
+      }
+    };
+    loadBlogPosts();
+  }, []);
 
   useEffect(() => {
     performSearch(initialQuery);
-  }, [initialQuery]);
+  }, [initialQuery, blogPosts]);
 
   const performSearch = (query: string) => {
     if (!query.trim()) {
@@ -42,6 +56,7 @@ const SearchPage = () => {
       return;
     }
 
+    setLoading(true);
     const searchResults: SearchResult[] = [];
     const lowerQuery = query.toLowerCase();
 
@@ -81,28 +96,31 @@ const SearchPage = () => {
       }
     });
 
-    // Search blogs
-    blogPosts.forEach(blog => {
-      if (
-        blog.title.toLowerCase().includes(lowerQuery) ||
-        blog.excerpt.toLowerCase().includes(lowerQuery) ||
-        blog.category.toLowerCase().includes(lowerQuery) ||
-        blog.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
-      ) {
-        searchResults.push({
-          id: blog.id,
-          title: blog.title,
-          description: blog.excerpt,
-          type: 'blog',
-          image: blog.image,
-          category: blog.category,
-          date: blog.date,
-          url: `/blog/${blog.id}`
-        });
-      }
-    });
+    // Search blogs (only if we have loaded blog posts)
+    if (blogPosts.length > 0) {
+      blogPosts.forEach(blog => {
+        if (
+          blog.title.toLowerCase().includes(lowerQuery) ||
+          blog.excerpt.toLowerCase().includes(lowerQuery) ||
+          blog.category.toLowerCase().includes(lowerQuery) ||
+          (blog.tags && blog.tags.some((tag: string) => tag.toLowerCase().includes(lowerQuery)))
+        ) {
+          searchResults.push({
+            id: blog.id.toString(),
+            title: blog.title,
+            description: blog.excerpt,
+            type: 'blog',
+            image: blog.image,
+            category: blog.category,
+            date: blog.date,
+            url: `/blog/${blog.id}`
+          });
+        }
+      });
+    }
 
     setResults(searchResults);
+    setLoading(false);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -149,9 +167,6 @@ const SearchPage = () => {
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
-      
-      <title>Search Results - GlobeDiaries</title>
-      <meta name="description" content={`Search results for "${initialQuery}" - Find countries, cities, and travel guides on GlobeDiaries.`} />
       
       <main>
         {/* Hero Section */}
@@ -253,7 +268,11 @@ const SearchPage = () => {
               </div>
 
               {/* Results */}
-              {sortedResults.length > 0 ? (
+              {loading ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">Searching...</p>
+                </div>
+              ) : sortedResults.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedResults.map((result) => (
                     <Link key={`${result.type}-${result.id}`} to={result.url}>

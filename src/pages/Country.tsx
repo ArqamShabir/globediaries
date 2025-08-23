@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import { getCountryById } from "@/data/countries";
-import { getBlogById } from "@/data/blogs";
+import { fetchWordPressPosts, formatBlogPost } from "@/data/blogs";
 
 const Country = () => {
   const { countryId } = useParams();
@@ -169,38 +169,31 @@ const Country = () => {
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {country.blogs.map((blog) => {
-                const blogData = getBlogById(blog.id);
-                return (
-                  <Link key={blog.id} to={`/blog/${blog.id}`}>
-                    <Card className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 bg-card border-0 overflow-hidden">
-                      {blogData?.image && (
-                        <div 
-                          className="h-32 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                          style={{ backgroundImage: `url(${blogData.image})` }}
-                        />
-                      )}
-                      <CardContent className="p-6 space-y-3">
-                        <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                          {blog.title}
-                        </h3>
-                        {blogData?.excerpt && (
-                          <p className="text-muted-foreground text-sm line-clamp-2">
-                            {blogData.excerpt}
-                          </p>
-                        )}
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          <span>{new Date(blog.date).toLocaleDateString()}</span>
-                        </div>
-                        <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">
-                          Read More →
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
+              {country.blogs.map((blog) => (
+                <Link key={blog.id} to={`/blog/${blog.id}`}>
+                  <Card className="group hover:shadow-card transition-all duration-300 hover:-translate-y-1 bg-card border-0 overflow-hidden">
+                    <div 
+                      className="h-32 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+                      style={{ backgroundImage: `url(https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop)` }}
+                    />
+                    <CardContent className="p-6 space-y-3">
+                      <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                        {blog.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm line-clamp-2">
+                        Discover amazing stories and insights about {country.name}
+                      </p>
+                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4" />
+                        <span>{new Date(blog.date).toLocaleDateString()}</span>
+                      </div>
+                      <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">
+                        Read More →
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
             </div>
           </div>
         </section>
