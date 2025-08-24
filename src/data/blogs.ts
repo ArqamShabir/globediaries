@@ -36,7 +36,7 @@ export interface WordPressAuthor {
   name: string;
 }
 
-export const WORDPRESS_API_URL = 'https://globediaries.com/wp-json/wp/v2';
+export const WORDPRESS_API_URL = 'https://lightseagreen-badger-976849.hostingersite.com/wp-json/wp/v2';
 
 export const blogCategories = [
   { name: "All", slug: "" },

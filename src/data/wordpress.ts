@@ -43,12 +43,12 @@ export interface WordPressCity {
   tags: number[];
 }
 
-const WORDPRESS_BASE_URL = 'https://globediaries.com/wp-json/wp/v2';
+const WORDPRESS_BASE_URL = 'https://lightseagreen-badger-976849.hostingersite.com/wp-json/wp/v2';
 
 export const fetchWordPressCountries = async (): Promise<WordPressCountry[]> => {
   try {
     // Fetch posts with 'country' category (assuming category ID 5 for countries)
-    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?categories=88&per_page=50&_embed`);
+    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?categories=4&per_page=50&_embed`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch countries');
@@ -77,7 +77,7 @@ export const fetchWordPressCountries = async (): Promise<WordPressCountry[]> => 
 export const fetchWordPressCities = async (): Promise<WordPressCity[]> => {
   try {
     // Fetch posts with 'city' category (assuming category ID 6 for cities)
-    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?categories=90&per_page=100&_embed`);
+    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?categories=5&per_page=100&_embed`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch cities');
@@ -105,7 +105,7 @@ export const fetchWordPressCities = async (): Promise<WordPressCity[]> => {
 
 export const fetchWordPressCountryBySlug = async (slug: string): Promise<WordPressCountry | null> => {
   try {
-    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?slug=${slug}&categories=88&_embed`);
+    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?slug=${slug}&categories=4&_embed`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch country');
@@ -139,7 +139,7 @@ export const fetchWordPressCountryBySlug = async (slug: string): Promise<WordPre
 
 export const fetchWordPressCityBySlug = async (slug: string): Promise<WordPressCity | null> => {
   try {
-    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?slug=${slug}&categories=90&_embed`);
+    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?slug=${slug}&categories=5&_embed`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch city');
@@ -174,7 +174,7 @@ export const fetchWordPressCityBySlug = async (slug: string): Promise<WordPressC
 export const fetchCitiesByCountrySlug = async (countrySlug: string): Promise<WordPressCity[]> => {
   try {
     // Fetch cities that have the country slug in their ACF field or tags
-    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?categories=90&per_page=100&_embed`);
+    const response = await fetch(`${WORDPRESS_BASE_URL}/posts?categories=5&per_page=100&_embed`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch cities');

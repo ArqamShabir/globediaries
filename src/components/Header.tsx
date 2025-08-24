@@ -32,8 +32,10 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-full bg-gradient-ocean"></div>
+          <Link to="/" className="flex items-center space-x-1">
+            <div className="h-9 w-9">
+              <img src="/logo.png" alt="Globe Diaries Logo" />
+            </div>
             <span className="font-display text-2xl font-bold text-primary">
               GlobeDiaries
             </span>
