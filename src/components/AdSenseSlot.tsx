@@ -26,7 +26,7 @@ const AdSenseSlot = ({
   }, []);
 
   return (
-    <div className={`adsense-container ${className}`} style={style}>
+    <div className={`adsense-container hidden ${className}`} style={style}>
       <div className="text-xs text-muted-foreground text-center mb-2">Advertisement</div>
       <ins
         className="adsbygoogle block"

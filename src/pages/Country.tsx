@@ -142,7 +142,7 @@ const Country = () => {
                   <ContentRenderer 
                     content={country.content}
                     excerpt={country.excerpt}
-                    className="mb-8"
+                     className="prose prose-lg prose-primary max-w-none mb-8"
                   />
                 </div>
 
