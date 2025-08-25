@@ -156,10 +156,7 @@ const Blog = () => {
 
                           <div className="flex items-center justify-between pt-4 border-t border-border text-sm text-muted-foreground">
                             <div className="flex items-center space-x-3">
-                              <div className="flex items-center space-x-1">
-                                <User className="h-4 w-4" />
-                                <span>{blog.author}</span>
-                              </div>
+                             
                               <div className="flex items-center space-x-1">
                                 <Calendar className="h-4 w-4" />
                                 <span>{blog.date}</span>

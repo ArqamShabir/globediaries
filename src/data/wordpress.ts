@@ -32,6 +32,7 @@ export interface WordPressCity {
     best_time?: string;
     population?: string;
     overview?: string;
+    language?: string;   
     attractions?: string[];
     tips?: string[];
     coordinates?: {

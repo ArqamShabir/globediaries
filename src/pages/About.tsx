@@ -106,40 +106,7 @@ const About = () => {
               ))}
             </div>
           </div>
-        </section>
-
-        {/* Team Section */}
-        <section className="py-16 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="text-center space-y-4 mb-12">
-              <h2 className="font-display text-4xl font-bold text-foreground">
-                Meet Our Team
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Our diverse team of travel enthusiasts brings together years of experience 
-                and a shared passion for exploring the world.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {teamMembers.map((member, index) => (
-                <Card key={index} className="text-center p-6 bg-card border-0 shadow-card">
-                  <CardContent className="p-0 space-y-4">
-                    <div 
-                      className="w-32 h-32 rounded-full bg-cover bg-center mx-auto"
-                      style={{ backgroundImage: `url(${member.image})` }}
-                    ></div>
-                    <div>
-                      <h3 className="font-display text-xl font-bold text-foreground">{member.name}</h3>
-                      <p className="text-primary font-medium">{member.role}</p>
-                      <p className="text-muted-foreground mt-2">{member.bio}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
+        </section>             
 
         {/* Story Section */}
         <section className="py-16 bg-muted/20">

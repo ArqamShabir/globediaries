@@ -114,7 +114,7 @@ const HeroSection = () => {
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent"></div>
+      <div className="absolute hidden bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent"></div>
     </section>
   );
 };
