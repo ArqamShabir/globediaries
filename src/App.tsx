@@ -31,11 +31,13 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
            <Route path="/countries" element={<Countries />} />
-          <Route path="/cities" element={<Cities />} />
           <Route path="/country/:countryId" element={<Country />} />
-          <Route path="/country/:countryId/city/:cityId" element={<City />} />
+           {/*
+                      <Route path="/cities" element={<Cities />} />
+                     <Route path="/country/:countryId/city/:cityId" element={<City />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:blogId" element={<BlogPost />} />
+           ROUTE */}
           <Route path="/about" element={<About />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />

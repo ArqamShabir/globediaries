@@ -25,20 +25,25 @@ const Country = () => {
       setLoading(true);
       try {
         const [countryData, citiesData, blogsData] = await Promise.all([
-          fetchWordPressCountryBySlug(countryId),
-          fetchCitiesByCountrySlug(countryId),
-          fetchWordPressPosts()
-        ]);
-        
-        setCountry(countryData);
-        setCities(citiesData);
-        
-        // Filter blogs related to this country
-        const filtered = blogsData.filter(blog => 
-          blog.title.toLowerCase().includes(countryData?.name.toLowerCase() || '') ||
-          blog.content.toLowerCase().includes(countryData?.name.toLowerCase() || '')
-        ).slice(0, 6);
-        setRelatedBlogs(filtered);
+  fetchWordPressCountryBySlug(countryId),
+  fetchCitiesByCountrySlug(countryId),
+  fetchWordPressPosts()
+]);
+
+setCountry(countryData);
+setCities(citiesData);
+
+// Normalize blog posts here
+const formattedBlogs = blogsData.map(formatBlogPost);
+
+// Filter blogs related to this country
+const filtered = formattedBlogs.filter(blog =>
+  blog.title.toLowerCase().includes(countryData?.name.toLowerCase() || '') ||
+  blog.content.toLowerCase().includes(countryData?.name.toLowerCase() || '')
+).slice(0, 6);
+
+setRelatedBlogs(filtered);
+
         
       } catch (error) {
         console.error('Error loading country data:', error);
@@ -50,6 +55,7 @@ const Country = () => {
     loadCountryData();
   }, [countryId]);
 
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -81,6 +87,14 @@ const Country = () => {
     );
   }
 
+  const attractions: string[] =
+  Array.isArray(country.acf?.attractions)
+    ? country.acf!.attractions
+    : typeof country.acf?.attractions === "string"
+    ? country.acf!.attractions.split(",").map((a) => a.trim())
+    : [];
+
+
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
@@ -107,7 +121,7 @@ const Country = () => {
                 </h1>
                 <div className="max-w-4xl">
                   <p className="text-xl md:text-2xl text-white/90 leading-relaxed mb-4">
-                    {country.description}
+                      {country.acf.tagline}
                   </p>
                   <div className="flex flex-wrap gap-4 text-white/70">
                     {country.acf?.capital && (
@@ -141,7 +155,6 @@ const Country = () => {
                   </h2>
                   <ContentRenderer 
                     content={country.content}
-                    excerpt={country.excerpt}
                      className="prose prose-lg prose-primary max-w-none mb-8"
                   />
                 </div>
@@ -154,7 +167,7 @@ const Country = () => {
                       Must-Visit Attractions
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {country.acf.attractions.map((attraction, index) => (
+                      {attractions.map((attraction, index) => (
                         <Card key={index} className="group hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-card to-muted/20">
                           <CardContent className="p-6">
                             <div className="flex items-start space-x-4">
@@ -207,7 +220,7 @@ const Country = () => {
                         <Users className="h-5 w-5 text-primary mt-1" />
                         <div>
                           <div className="font-semibold text-foreground">Population</div>
-                          <div className="text-muted-foreground">{country.acf.population}</div>
+                          <div className="text-muted-foreground">{country.acf.population} million</div>
                         </div>
                       </div>
                     )}
@@ -315,7 +328,7 @@ const Country = () => {
 
         {/* Related Blog Posts */}
         {relatedBlogs.length > 0 && (
-          <section className="py-20 bg-background">
+          <section className="py-20 bg-background hidden">
             <div className="container mx-auto px-4">
               <div className="text-center mb-16">
                 <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">

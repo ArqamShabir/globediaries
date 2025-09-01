@@ -51,7 +51,7 @@ const FeaturedCountries = () => {
                       {country.name}
                     </h3>
                     <p className="text-muted-foreground leading-relaxed">
-                      {country.description}
+                      {country.acf.tagline}
                     </p>
                   </div>
                 </CardContent>

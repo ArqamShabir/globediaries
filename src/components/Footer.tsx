@@ -18,7 +18,7 @@ const Footer = () => {
               Explore the world with us. Discover amazing destinations, hidden gems, 
               and create unforgettable memories through our comprehensive travel guides.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 hidden">
               <a href="#" className="text-primary-foreground/60 hover:text-secondary transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
@@ -44,12 +44,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/cities" className="text-primary-foreground/80 hover:text-secondary transition-colors">
+                <Link to="/cities" className="hidden text-primary-foreground/80 hover:text-secondary transition-colors">
                   Cities
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-primary-foreground/80 hover:text-secondary transition-colors">
+                <Link to="/blog" className="hidden text-primary-foreground/80 hover:text-secondary transition-colors">
                   Travel Blog
                 </Link>
               </li>
@@ -114,9 +114,7 @@ const Footer = () => {
             <p className="text-sm text-primary-foreground/60">
               © {currentYear} GlobeDiaries. All rights reserved.
             </p>
-            <p className="text-sm text-primary-foreground/60">
-              Made with ❤️ for travelers worldwide
-            </p>
+   
           </div>
         </div>
       </div>

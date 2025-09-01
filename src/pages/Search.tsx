@@ -22,6 +22,7 @@ interface SearchResult {
   category?: string;
   date?: string;
   url: string;
+  tagline?: string; // for countries
 }
 
 const SearchPage = () => {
@@ -73,76 +74,99 @@ const SearchPage = () => {
     performSearch(initialQuery);
   }, [initialQuery, wpCountries, wpCities, blogPosts]);
 
-  const performSearch = (query: string) => {
-    if (!query.trim()) {
-      setResults([]);
+ const performSearch = (query: string) => {
+  if (!query.trim()) {
+    setResults([]);
+    return;
+  }
+
+  setLoading(true);
+  const searchResults: SearchResult[] = [];
+  const lowerQuery = query.toLowerCase();
+
+  // helper used later to detect exact-name duplicates
+  const countryNames = new Set(wpCountries.map(c => c.name.toLowerCase()));
+  const cityNames = new Set(wpCities.map(c => c.name.toLowerCase()));
+
+  // ✅ Search WordPress Countries
+  wpCountries.forEach((country) => {
+    if (
+      country.name.toLowerCase().includes(lowerQuery) ||
+      country.description.toLowerCase().includes(lowerQuery) ||
+      country.acf?.capital?.toLowerCase().includes(lowerQuery)
+    ) {
+      searchResults.push({
+        id: country.id.toString(),
+        title: country.name,
+        description: country.description,
+        type: "country",
+        image: country.featured_media_url,
+        url: `/country/${country.slug}`,
+        tagline: country.acf?.tagline || "",
+      });
+    }
+  });
+
+  // ✅ Search WordPress Cities
+  wpCities.forEach((city) => {
+    if (
+      city.name.toLowerCase().includes(lowerQuery) ||
+      city.description.toLowerCase().includes(lowerQuery) ||
+      city.acf?.country_slug?.toLowerCase().includes(lowerQuery)
+    ) {
+      searchResults.push({
+        id: city.id.toString(),
+        title: city.name,
+        description: city.description,
+        type: "city",
+        image: city.featured_media_url,
+        url: `/country/${city.acf?.country_slug || "unknown"}/city/${city.slug}`,
+      });
+    }
+  });
+
+  // ✅ Search WordPress Blogs
+  blogPosts.forEach((blog) => {
+    // quick guards
+    const blogTitle = blog.title.toLowerCase();
+    const categoriesString = (blog.categories || []).join(" ").toLowerCase(); // category names joined
+    const categoryMain = (blog.category || "").toLowerCase();
+
+    const matchesQuery =
+      blogTitle.includes(lowerQuery) ||
+      (blog.excerpt && blog.excerpt.toLowerCase().includes(lowerQuery)) ||
+      categoryMain.includes(lowerQuery) ||
+      (blog.tags && blog.tags.some((tag: string) => tag.toLowerCase().includes(lowerQuery)));
+
+    if (!matchesQuery) return;
+
+    // 1) skip blogs that are actually place-category posts
+    if (/country|countries|city|cities/.test(categoryMain + " " + categoriesString)) {
+      return; // don't include blog posts that are place categories
+    }
+
+    // 2) if a country or city exists with the exact same name as the blog title -> skip blog
+    if (countryNames.has(blogTitle) || cityNames.has(blogTitle)) {
       return;
     }
 
-    setLoading(true);
-    const searchResults: SearchResult[] = [];
-    const lowerQuery = query.toLowerCase();
-
-    // Search WordPress Countries
-    wpCountries.forEach((country) => {
-      if (
-        country.name.toLowerCase().includes(lowerQuery) ||
-        country.description.toLowerCase().includes(lowerQuery) ||
-        country.acf?.capital?.toLowerCase().includes(lowerQuery)
-      ) {
-        searchResults.push({
-          id: country.id.toString(),
-          title: country.name,
-          description: country.description,
-          type: "country",
-          image: country.featured_media_url,
-          url: `/country/${country.slug}`,
-        });
-      }
+    // otherwise include the blog
+    searchResults.push({
+      id: blog.id.toString(),
+      title: blog.title,
+      description: blog.excerpt,
+      type: "blog",
+      image: blog.image,
+      category: blog.category,
+      date: blog.date,
+      url: `/blog/${blog.id}`,
     });
+  });
 
-    // Search WordPress Cities
-    wpCities.forEach((city) => {
-      if (
-        city.name.toLowerCase().includes(lowerQuery) ||
-        city.description.toLowerCase().includes(lowerQuery) ||
-        city.acf?.country_slug?.toLowerCase().includes(lowerQuery)
-      ) {
-        searchResults.push({
-          id: city.id.toString(),
-          title: city.name,
-          description: city.description,
-          type: "city",
-          image: city.featured_media_url,
-          url: `/country/${city.acf?.country_slug || "unknown"}/city/${city.slug}`,
-        });
-      }
-    });
+  setResults(searchResults);
+  setLoading(false);
+};
 
-    // Search WordPress Blogs
-    blogPosts.forEach((blog) => {
-      if (
-        blog.title.toLowerCase().includes(lowerQuery) ||
-        blog.excerpt.toLowerCase().includes(lowerQuery) ||
-        blog.category.toLowerCase().includes(lowerQuery) ||
-        (blog.tags && blog.tags.some((tag: string) => tag.toLowerCase().includes(lowerQuery)))
-      ) {
-        searchResults.push({
-          id: blog.id.toString(),
-          title: blog.title,
-          description: blog.excerpt,
-          type: "blog",
-          image: blog.image,
-          category: blog.category,
-          date: blog.date,
-          url: `/blog/${blog.id}`,
-        });
-      }
-    });
-
-    setResults(searchResults);
-    setLoading(false);
-  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -331,7 +355,7 @@ const SearchPage = () => {
                             {result.title}
                           </h3>
                           <p className="text-muted-foreground line-clamp-3">
-                            {result.description}
+                            {result.tagline}
                           </p>
 
                           <div className="flex items-center justify-between pt-2">

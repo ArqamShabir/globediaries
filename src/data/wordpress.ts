@@ -7,13 +7,15 @@ export interface WordPressCountry {
   content: string;
   featured_media_url?: string;
   acf?: {
+    tagline?: string;
     capital?: string;
     population?: string;
+    continent?: string;
     language?: string;
     currency?: string;
     best_time?: string;
     overview?: string;
-    attractions?: string[];
+    attractions?: string | string[];
   };
   categories: number[];
   tags: number[];
@@ -33,8 +35,8 @@ export interface WordPressCity {
     population?: string;
     overview?: string;
     language?: string;   
-    attractions?: string[];
-    tips?: string[];
+      attractions?: string | string[]; // 👈 same here
+    tips?: string | string[];   
     coordinates?: {
       lat: number;
       lng: number;

@@ -21,7 +21,7 @@ const ContentRenderer = ({
   content, 
   excerpt,
   className = "",
-  showFullContent = false,
+  showFullContent = true,
   maxHeight = "300px",
   title,
   publishDate,
@@ -36,7 +36,7 @@ const ContentRenderer = ({
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
   
-  const hasLongContent = cleanContent.length > 1000;
+  const hasLongContent = cleanContent.length > 10000;
   const displayContent = isExpanded ? cleanContent : excerpt || cleanContent.slice(0, 500) + '...';
 
   return (

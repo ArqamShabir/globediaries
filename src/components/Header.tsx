@@ -20,9 +20,10 @@ const Header = () => {
 
   const navigationLinks = [
     { href: "/", label: "Home" },
-    { href: "/countries", label: "Countries" },
+    { href: "/countries", label: "Countries",/*}
     { href: "/cities", label: "Cities" },
     { href: "/blog", label: "Blog" },
+     */ },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];

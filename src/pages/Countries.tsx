@@ -52,7 +52,7 @@ const Countries = () => {
 
       if (selectedCategory !== "All") {
   results = results.filter(
-    (c) => c.acf?.language?.toLowerCase() === selectedCategory.toLowerCase()
+    (c) => c.acf?.continent?.toLowerCase() === selectedCategory.toLowerCase()
   );
 }
 
@@ -178,7 +178,7 @@ const Countries = () => {
                             {country.name}
                           </h3>
                           <p className="text-muted-foreground line-clamp-3">
-                            {country.description}
+                            {country.acf.tagline}
                           </p>
 
                          

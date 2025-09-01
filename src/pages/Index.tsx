@@ -12,8 +12,10 @@ const Index = () => {
       <main>
         <HeroSection />
         <FeaturedCountries />
+        {/*
         <PopularCities />
         <TravelBlogPreview />
+        */}
       </main>
       <Footer />
     </div>

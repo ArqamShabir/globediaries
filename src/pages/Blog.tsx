@@ -18,40 +18,58 @@ const Blog = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    const loadPosts = async () => {
-      setLoading(true);
-      try {
-        const categorySlug = selectedCategory === "All" ? "" : blogCategories.find(cat => cat.name === selectedCategory)?.slug || "";
-        const posts = await fetchWordPressPosts(categorySlug, searchTerm, 1, 12);
-        const formattedPosts = posts.map(formatBlogPost);
-        setBlogs(formattedPosts);
-        setHasMore(posts.length === 12);
-        setPage(1);
-      } catch (error) {
-        console.error('Error loading blog posts:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const timeoutId = setTimeout(loadPosts, 300); // Debounce search
-    return () => clearTimeout(timeoutId);
-  }, [selectedCategory, searchTerm]);
-
-  const loadMorePosts = async () => {
+useEffect(() => {
+  const loadPosts = async () => {
+    setLoading(true);
     try {
       const categorySlug = selectedCategory === "All" ? "" : blogCategories.find(cat => cat.name === selectedCategory)?.slug || "";
-      const nextPage = page + 1;
-      const posts = await fetchWordPressPosts(categorySlug, searchTerm, nextPage, 12);
+      const posts = await fetchWordPressPosts(categorySlug, searchTerm, 1, 12);
       const formattedPosts = posts.map(formatBlogPost);
-      setBlogs(prev => [...prev, ...formattedPosts]);
-      setPage(nextPage);
-      setHasMore(posts.length === 12);
+
+      const filteredPosts = formattedPosts.filter((post) => {
+        const catLower = (post.category || "").toLowerCase();
+        const categoriesList = (post.categories || []).map((c: string) => c.toLowerCase()).join(" ");
+        // exclude any post whose category or any category name looks like country/cities
+        return !/country|countries|city|cities/.test(catLower + " " + categoriesList);
+      });
+
+      setBlogs(filteredPosts);
+      setHasMore(filteredPosts.length === 12);
+      setPage(1);
     } catch (error) {
-      console.error('Error loading more posts:', error);
+      console.error('Error loading blog posts:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const timeoutId = setTimeout(loadPosts, 300); // Debounce search
+  return () => clearTimeout(timeoutId);
+}, [selectedCategory, searchTerm]);
+
+
+const loadMorePosts = async () => {
+  try {
+    const categorySlug = selectedCategory === "All" ? "" : blogCategories.find(cat => cat.name === selectedCategory)?.slug || "";
+    const nextPage = page + 1;
+    const posts = await fetchWordPressPosts(categorySlug, searchTerm, nextPage, 12);
+    const formattedPosts = posts.map(formatBlogPost);
+
+    // Filter out place-category posts just like initial load
+    const filteredNew = formattedPosts.filter((post) => {
+      const catLower = (post.category || "").toLowerCase();
+      const categoriesList = (post.categories || []).map((c: string) => c.toLowerCase()).join(" ");
+      return !/country|countries|city|cities/.test(catLower + " " + categoriesList);
+    });
+
+    setBlogs(prev => [...prev, ...filteredNew]);
+    setPage(nextPage);
+    setHasMore(filteredNew.length === 12);
+  } catch (error) {
+    console.error('Error loading more posts:', error);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-background font-body">
