@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,13 +31,48 @@ const ContentRenderer = ({
 }: ContentRendererProps) => {
   const [isExpanded, setIsExpanded] = useState(showFullContent);
   
+  // Utilities to sanitize and enhance WP HTML content
+  const enhanceImages = (html: string) =>
+    html
+      // Add lazy loading and async decoding to all <img> tags
+      .replace(/<img(?![^>]*\bloading=)[^>]*?>/gi, (m) =>
+        m.replace('<img', '<img loading="lazy" decoding="async"')
+      )
+      // Ensure images don't overflow container (fallback if prose-img styles don’t apply)
+      .replace(/<img([^>]*)style=("|')(.*?)(\2)([^>]*)>/gi, (m, a1, q, styles, _q2, a2) => {
+        const merged = styles.includes('max-width') ? styles : `${styles};max-width:100%;height:auto;`;
+        return `<img${a1}style=${q}${merged}${q}${a2}>`;
+      })
+      .replace(/<img(?![^>]*style=)([^>]*)>/gi, '<img style="max-width:100%;height:auto;" $1>');
+
   // Clean and process content
-  const cleanContent = content
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+  const cleanContent = useMemo(() => {
+    const stripped = content
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+    return enhanceImages(stripped);
+  }, [content]);
   
   const hasLongContent = cleanContent.length > 10000;
-  const displayContent = isExpanded ? cleanContent : excerpt || cleanContent.slice(0, 500) + '...';
+  const displayContent = isExpanded ? cleanContent : (excerpt || cleanContent.slice(0, 500) + '...');
+
+  // Ref for smooth scroll on toggle
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  const firstToggle = useRef(true);
+  useEffect(() => {
+    // Skip on initial mount to avoid auto-scrolling on first render
+    if (firstToggle.current) {
+      firstToggle.current = false;
+      return;
+    }
+    // Scroll to the top of the content on both expand and collapse
+    if (rootRef.current) {
+      requestAnimationFrame(() => {
+        rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }, [isExpanded]);
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -94,30 +129,28 @@ const ContentRenderer = ({
       )}
 
       {/* Content */}
-      <Card className="border-none shadow-none bg-transparent">
+      <Card ref={rootRef} className="border-none shadow-none bg-transparent">
         <CardContent className="p-0">
-          <div 
-            className={`prose prose-lg max-w-none ${!isExpanded && hasLongContent ? 'overflow-hidden' : ''}`}
+          <div
+            className={`
+              prose prose-lg max-w-none
+              prose-headings:font-display prose-headings:text-foreground
+              prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:text-base
+              prose-strong:text-foreground prose-strong:font-semibold
+              prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+              prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
+              prose-code:bg-muted prose-code:text-foreground prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+              prose-pre:bg-muted prose-pre:border
+              prose-img:rounded-lg prose-img:shadow-md
+              prose-ul:text-muted-foreground prose-ol:text-muted-foreground
+              prose-li:text-muted-foreground
+              prose-table:border prose-th:border prose-td:border
+              prose-hr:border-border
+              ${!isExpanded && hasLongContent ? 'overflow-hidden' : ''}
+            `}
             style={!isExpanded && hasLongContent ? { maxHeight, maskImage: 'linear-gradient(to bottom, black 70%, transparent)' } : {}}
-          >
-            <div 
-              dangerouslySetInnerHTML={{ __html: displayContent }}
-              className="
-                prose-headings:font-display prose-headings:text-foreground
-                prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:text-base
-                prose-strong:text-foreground prose-strong:font-semibold
-                prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
-                prose-code:bg-muted prose-code:text-foreground prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                prose-pre:bg-muted prose-pre:border
-                prose-img:rounded-lg prose-img:shadow-md
-                prose-ul:text-muted-foreground prose-ol:text-muted-foreground
-                prose-li:text-muted-foreground
-                prose-table:border prose-th:border prose-td:border
-                prose-hr:border-border
-              "
-            />
-          </div>
+            dangerouslySetInnerHTML={{ __html: displayContent }}
+          />
           
           {hasLongContent && (
             <div className="mt-6 text-center">

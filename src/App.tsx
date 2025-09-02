@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import Disclaimer from "./pages/Disclaimer";
 import TermsOfService from "./pages/TermsOfService";
 import ScrollToTop from "./components/ScrollToTop";
+import BackToTop from "./components/BackToTop";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
        <ScrollToTop />
+        <BackToTop />
         <Routes>
           <Route path="/" element={<Index />} />
            <Route path="/countries" element={<Countries />} />

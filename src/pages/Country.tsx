@@ -155,7 +155,7 @@ setRelatedBlogs(filtered);
                   </h2>
                   <ContentRenderer 
                     content={country.content}
-                     className="prose prose-lg prose-primary max-w-none mb-8"
+                    className="mb-8"
                   />
                 </div>
 
