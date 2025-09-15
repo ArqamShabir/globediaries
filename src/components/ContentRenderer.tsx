@@ -10,6 +10,9 @@ interface ContentRendererProps {
   className?: string;
   showFullContent?: boolean;
   maxHeight?: string;
+  collapseAtChars?: number; // show toggle if content longer than this
+  previewMode?: 'substring' | 'mask'; // how to collapse
+  scrollOnToggle?: boolean; // whether to auto-scroll when toggling
   title?: string;
   publishDate?: string;
   author?: string;
@@ -23,6 +26,9 @@ const ContentRenderer = ({
   className = "",
   showFullContent = true,
   maxHeight = "300px",
+  collapseAtChars = 10000,
+  previewMode = 'substring',
+  scrollOnToggle = false,
   title,
   publishDate,
   author,
@@ -53,26 +59,30 @@ const ContentRenderer = ({
     return enhanceImages(stripped);
   }, [content]);
   
-  const hasLongContent = cleanContent.length > 10000;
-  const displayContent = isExpanded ? cleanContent : (excerpt || cleanContent.slice(0, 500) + '...');
+  const hasLongContent = cleanContent.length > collapseAtChars;
+  const displayContent = isExpanded
+    ? cleanContent
+    : previewMode === 'mask'
+      ? cleanContent
+      : (excerpt || cleanContent.slice(0, 500) + '...');
 
   // Ref for smooth scroll on toggle
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   const firstToggle = useRef(true);
   useEffect(() => {
-    // Skip on initial mount to avoid auto-scrolling on first render
+    if (!scrollOnToggle) return;
+    // Skip on initial mount
     if (firstToggle.current) {
       firstToggle.current = false;
       return;
     }
-    // Scroll to the top of the content on both expand and collapse
     if (rootRef.current) {
       requestAnimationFrame(() => {
-        rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        rootRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
       });
     }
-  }, [isExpanded]);
+  }, [isExpanded, scrollOnToggle]);
 
   return (
     <div className={`space-y-6 ${className}`}>

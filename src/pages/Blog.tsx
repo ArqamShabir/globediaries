@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, Clock, User, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -133,8 +134,19 @@ const loadMorePosts = async () => {
         <section className="py-16 bg-background">
           <div className="container mx-auto px-4">
             {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading blog posts...</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={`blog-skeleton-${i}`} className="overflow-hidden border-0">
+                    <div className="relative h-48">
+                      <Skeleton className="absolute inset-0" />
+                    </div>
+                    <CardContent className="p-6 space-y-3">
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             ) : blogs.length === 0 ? (
               <div className="text-center py-12">
@@ -146,20 +158,24 @@ const loadMorePosts = async () => {
                   {blogs.map((blog) => (
                     <Link key={blog.id} to={`/blog/${blog.id}`} className="group">
                       <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 bg-card border-0 h-full">
-                        <div className="relative">
-                          <div 
-                            className="h-48 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                            style={{ backgroundImage: `url(${blog.image})` }}
+                        <div className="relative h-48 overflow-hidden">
+                          <img
+                            src={blog.image || '/placeholder.svg'}
+                            srcSet={blog.image_srcset}
+                            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                            alt={`${blog.title} image`}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                          
+                          <Badge 
+                            variant="secondary"
+                            className="absolute top-4 right-4 bg-white/90 text-foreground"
                           >
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                            
-                            <Badge 
-                              variant="secondary"
-                              className="absolute top-4 right-4 bg-white/90 text-foreground"
-                            >
-                              {blog.category}
-                            </Badge>
-                          </div>
+                            {blog.category}
+                          </Badge>
                         </div>
                         
                         <CardContent className="p-6 space-y-4">
@@ -187,8 +203,7 @@ const loadMorePosts = async () => {
                           </div>
 
                           <div className="text-primary font-medium group-hover:text-primary-dark transition-colors pt-2">
-                            Read More →
-                          </div>
+                            Read More ?                          </div>
                         </CardContent>
                       </Card>
                     </Link>
@@ -224,3 +239,4 @@ const loadMorePosts = async () => {
 };
 
 export default Blog;
+

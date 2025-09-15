@@ -1,0 +1,141 @@
+1	import { useEffect, useState } from "react";
+2	import { useEffect, useState } from "react";
+3	import { Link } from "react-router-dom";
+4	import { Star, Camera } from "lucide-react";
+5	import { Card, CardContent } from "@/components/ui/card";
+6	import { Skeleton } from "@/components/ui/skeleton";
+7	import { fetchWordPressCities, WordPressCity } from "@/data/wordpress";
+8	
+9	const PopularCities = () => {
+10	  const [cities, setCities] = useState<WordPressCity[]>([]);
+11	  const [loading, setLoading] = useState(true);
+12	
+13	  useEffect(() => {
+14	    const loadCities = async () => {
+15	      setLoading(true);
+16	      const data = await fetchWordPressCities();
+17	      setCities(data);
+18	      setLoading(false);
+19	    };
+20	    loadCities();
+21	  }, []);
+22	
+23	  if (loading) {
+24	    return (
+25	      <section className="py-16 bg-background">
+26	        <div className="container mx-auto px-4">
+27	          <div className="text-center space-y-4 mb-12">
+28	            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">Popular Cities</h2>
+29	            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">Loading cities…</p>
+30	          </div>
+31	          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+32	            {Array.from({ length: 6 }).map((_, i) => (
+33	              <Card key={`city-skeleton-${i}`} className="overflow-hidden border-0">
+34	                <div className="relative h-52">
+35	                  <Skeleton className="absolute inset-0" />
+36	                </div>
+37	                <CardContent className="p-6 space-y-3">
+38	                  <Skeleton className="h-6 w-2/3" />
+39	                  <Skeleton className="h-4 w-full" />
+40	                  <Skeleton className="h-4 w-5/6" />
+41	                </CardContent>
+42	              </Card>
+43	            ))}
+44	          </div>
+45	        </div>
+46	      </section>
+47	    );
+48	  }
+49	
+50	  if (cities.length === 0) {
+51	    return (
+52	      <section className="py-16 bg-background text-center">
+53	        <p className="text-muted-foreground">No cities found.</p>
+54	      </section>
+55	    );
+56	  }
+57	
+58	  return (
+59	    <section className="py-16 bg-background">
+60	      <div className="container mx-auto px-4">
+61	        <div className="text-center space-y-4 mb-12">
+62	          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
+63	            Popular Cities
+64	          </h2>
+65	          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+66	            From bustling metropolises to charming historic towns, explore the world's most beloved urban destinations.
+67	          </p>
+68	        </div>
+69	
+70	        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+71	          {cities.map((city) => (
+72	            <Link
+73	              key={city.id}
+74	              to={city.acf?.country_slug ? `/country/${city.acf.country_slug}/city/${city.slug}` : `/city/${city.slug}`}
+75	            >
+76	              <Card className="group overflow-hidden hover:shadow-travel transition-all duration-300 hover:-translate-y-1 bg-card border-0">
+77	                <div className="relative h-52 overflow-hidden">
+78	                  <img
+79	                    src={city.featured_media_url || '/placeholder.svg'}
+80	                    srcSet={city.featured_media_srcset}
+81	                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+82	                    alt={`${city.name} image`}
+83	                    loading="lazy"
+84	                    decoding="async"
+85	                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+86	                  />
+87	                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+88	                  
+89	                  {/* City name overlay */}
+90	                  <div className="absolute bottom-4 left-4 text-white">
+91	                    <h3 className="font-display text-2xl font-bold">{city.name}</h3>
+92	                    <p className="text-white/90 text-sm">{city.acf?.country_slug || ""}</p>
+93	                  </div>
+94	
+95	                  {/* Rating badge (if you want to support ratings via ACF) */}
+96	                  {city.acf?.population && (
+97	                    <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
+98	                      <Star className="h-4 w-4 text-secondary fill-current" />
+99	                      <span className="text-white font-semibold text-sm">
+100	                        {city.acf.population}
+101	                      </span>
+102	                    </div>
+103	                  )}
+104	                </div>
+105	                
+106	                <CardContent className="p-6 space-y-4">
+107	                  <p className="text-muted-foreground leading-relaxed">
+108	                    {city.description}
+109	                  </p>
+110	
+111	                  <div className="flex items-center justify-between pt-2">
+112	                    <div className="flex items-center space-x-1 text-sm text-primary font-medium">
+113	                      <Camera className="h-4 w-4" />
+114	                      <span>{city.acf?.attractions?.length || 0} attractions</span>
+115	                    </div>
+116	                    <div className="text-sm text-accent font-medium group-hover:text-accent-foreground transition-colors">
+117	                      Explore →
+118	                    </div>
+119	                  </div>
+120	                </CardContent>
+121	              </Card>
+122	            </Link>
+123	          ))}
+124	        </div>
+125	
+126	        <div className="text-center mt-12">
+127	          <Link 
+128	            to="/cities"
+129	            className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold bg-gradient-sunset text-secondary-foreground rounded-full hover:bg-secondary-dark transition-all duration-300 shadow-card"
+130	          >
+131	            Discover All Cities
+132	          </Link>
+133	        </div>
+134	      </div>
+135	    </section>
+136	  );
+137	};
+138	
+139	export default PopularCities;
+140	
+141	

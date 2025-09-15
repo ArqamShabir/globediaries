@@ -19,6 +19,7 @@ interface SearchResult {
   description: string;
   type: 'country' | 'city' | 'blog';
   image?: string;
+  image_srcset?: string;
   category?: string;
   date?: string;
   url: string;
@@ -101,6 +102,7 @@ const SearchPage = () => {
         description: country.description,
         type: "country",
         image: country.featured_media_url,
+        image_srcset: country.featured_media_srcset,
         url: `/country/${country.slug}`,
         tagline: country.acf?.tagline || "",
       });
@@ -120,6 +122,7 @@ const SearchPage = () => {
         description: city.description,
         type: "city",
         image: city.featured_media_url,
+        image_srcset: city.featured_media_srcset,
         url: `/country/${city.acf?.country_slug || "unknown"}/city/${city.slug}`,
       });
     }
@@ -157,6 +160,7 @@ const SearchPage = () => {
       description: blog.excerpt,
       type: "blog",
       image: blog.image,
+      image_srcset: blog.image_srcset,
       category: blog.category,
       date: blog.date,
       url: `/blog/${blog.id}`,
@@ -334,11 +338,18 @@ const SearchPage = () => {
                     <Link key={`${result.type}-${result.id}`} to={result.url}>
                       <Card className="group overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 bg-card border-0 h-full">
                         {result.image && (
-                          <div
-                            className="h-48 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                            style={{ backgroundImage: `url(${result.image})` }}
-                          >
-                            <div className="h-full bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                          <div className="relative h-48 overflow-hidden">
+                            <img
+                              src={result.image}
+                              srcSet={result.image_srcset}
+                              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                              alt={`${result.title} image`}
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div className="absolute inset-x-0 bottom-0 p-4 flex items-end">
                               <Badge
                                 variant={getTypeBadgeVariant(result.type)}
                                 className="bg-white/90 text-foreground"

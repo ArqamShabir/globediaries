@@ -35,7 +35,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-1">
             <div className="h-9 w-9">
-              <img src="/logo.png" alt="Globe Diaries Logo" />
+              <img src="/logo.png" alt="Globe Diaries Logo" loading="eager" decoding="async" />
             </div>
             <span className="font-display text-2xl font-bold text-primary">
               GlobeDiaries

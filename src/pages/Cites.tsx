@@ -7,34 +7,26 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdSenseSlot from "@/components/AdSenseSlot";
-import { fetchWordPressCities, WordPressCity } from "@/data/wordpress";
+import { WordPressCity } from "@/data/wordpress";
+import { useCitiesStore } from "@/store/citiesStore";
+import { WordPressCategory } from "@/data/blogs";
 
 const Cities = () => {
-  const [cities, setCities] = useState<WordPressCity[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { cities, areas, loading } = useCitiesStore();
 
   // filters
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("All");
 
-  useEffect(() => {
-    const loadCities = async () => {
-      try {
-        const data = await fetchWordPressCities();
-        setCities(data);
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadCities();
-  }, []);
+  // No explicit fetching here; store handles it
 
   // unique country list for filters
   const countryFilters = ["All", ...Array.from(
     new Set(cities.map((c) => c.acf?.country_slug).filter(Boolean))
   )];
+
+  const [selectedArea, setSelectedArea] = useState<number | 'All'>('All');
+  const areaFilters: Array<WordPressCategory> = areas;
 
   // apply search + filter
   const filteredCities = cities.filter((city) => {
@@ -46,7 +38,10 @@ const Cities = () => {
       selectedCountry === "All" ||
       city.acf?.country_slug?.toLowerCase() === selectedCountry.toLowerCase();
 
-    return matchesSearch && matchesCountry;
+    const matchesArea =
+      selectedArea === 'All' || (city.categories || []).includes(selectedArea as number);
+
+    return matchesSearch && matchesCountry && matchesArea;
   });
 
   return (
@@ -98,6 +93,30 @@ const Cities = () => {
                 </Badge>
               ))}
             </div>
+
+            {/* Area Filters (derived from WP categories used by city posts) */}
+            {areaFilters.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-3 mt-6">
+                <Badge
+                  key="All"
+                  variant={selectedArea === 'All' ? "default" : "outline"}
+                  className="px-4 py-2 text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                  onClick={() => setSelectedArea('All')}
+                >
+                  All Areas
+                </Badge>
+                {areaFilters.map((area) => (
+                  <Badge
+                    key={area.id}
+                    variant={selectedArea === area.id ? "default" : "outline"}
+                    className="px-4 py-2 text-sm cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => setSelectedArea(area.id)}
+                  >
+                    {area.name}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -117,15 +136,19 @@ const Cities = () => {
                 {filteredCities.map((city) => (
                   <Link key={city.id} to={`/city/${city.slug}`} className="group">
                     <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 bg-card border-0 h-full">
-                      <div
-                        className="h-48 bg-cover bg-center group-hover:scale-105 transition-transform duration-500 relative"
-                        style={{
-                          backgroundImage: `url(${city.featured_media_url})`,
-                        }}
-                      >
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={city.featured_media_url || '/placeholder.svg'}
+                          srcSet={city.featured_media_srcset}
+                          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                          alt={`${city.name} image`}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                         <Badge className="absolute top-4 right-4 bg-white/90 text-foreground">
-                          {city.acf?.country_slug || "Unknown Country"}
+                          {city.acf?.country || (city.acf?.country_slug ? city.acf.country_slug.replace(/-/g, ' ').replace(/\b\w/g, (s) => s.toUpperCase()) : "Unknown Country")}
                         </Badge>
                       </div>
 

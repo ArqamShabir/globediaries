@@ -161,12 +161,16 @@ const Countries = () => {
                       className="group"
                     >
                       <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 bg-card border-0 h-full">
-                        <div
-                          className="h-48 bg-cover bg-center group-hover:scale-105 transition-transform duration-500 relative"
-                          style={{
-                            backgroundImage: `url(${country.featured_media_url})`,
-                          }}
-                        >
+                        <div className="relative h-48 overflow-hidden">
+                          <img
+                            src={country.featured_media_url || '/placeholder.svg'}
+                            srcSet={country.featured_media_srcset}
+                            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                            alt={`${country.name} image`}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                           <Badge className="absolute top-4 right-4 bg-white/90 text-foreground">
                             {country.acf?.capital || "Unknown Capital"}

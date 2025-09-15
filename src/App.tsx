@@ -34,9 +34,11 @@ const App = () => (
           <Route path="/" element={<Index />} />
            <Route path="/countries" element={<Countries />} />
           <Route path="/country/:countryId" element={<Country />} />
-           {/*
-                      <Route path="/cities" element={<Cities />} />
-                     <Route path="/country/:countryId/city/:cityId" element={<City />} />
+          
+          <Route path="/cities" element={<Cities />} />
+          <Route path="/city/:cityId" element={<City />} />
+          <Route path="/country/:countryId/city/:cityId" element={<City />} />
+          {/*
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:blogId" element={<BlogPost />} />
            ROUTE */}

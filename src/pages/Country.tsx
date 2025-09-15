@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import ContentRenderer from "@/components/ContentRenderer";
-import { fetchWordPressCountryBySlug, fetchCitiesByCountrySlug, WordPressCountry, WordPressCity } from "@/data/wordpress";
+import { fetchWordPressCountryBySlug, fetchCitiesByCountrySlug, fetchWordPressCountries, WordPressCountry, WordPressCity } from "@/data/wordpress";
 import { fetchWordPressPosts, formatBlogPost } from "@/data/blogs";
 
 const Country = () => {
@@ -16,6 +16,7 @@ const Country = () => {
   const [country, setCountry] = useState<WordPressCountry | null>(null);
   const [cities, setCities] = useState<WordPressCity[]>([]);
   const [relatedBlogs, setRelatedBlogs] = useState<any[]>([]);
+  const [otherCountries, setOtherCountries] = useState<WordPressCountry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,14 +25,20 @@ const Country = () => {
       
       setLoading(true);
       try {
-        const [countryData, citiesData, blogsData] = await Promise.all([
+        const [countryData, citiesData, blogsData, countriesData] = await Promise.all([
   fetchWordPressCountryBySlug(countryId),
   fetchCitiesByCountrySlug(countryId),
-  fetchWordPressPosts()
+  fetchWordPressPosts(),
+  fetchWordPressCountries()
 ]);
 
 setCountry(countryData);
-setCities(citiesData);
+const filteredCities = (citiesData || []).filter((city) => {
+  const slugMatch = city.acf?.country_slug?.toLowerCase() === (countryId || '').toLowerCase();
+  const nameMatch = countryData?.name && city.acf?.country && city.acf.country.toLowerCase() === countryData.name.toLowerCase();
+  return slugMatch || !!nameMatch;
+});
+setCities(filteredCities);
 
 // Normalize blog posts here
 const formattedBlogs = blogsData.map(formatBlogPost);
@@ -43,6 +50,12 @@ const filtered = formattedBlogs.filter(blog =>
 ).slice(0, 6);
 
 setRelatedBlogs(filtered);
+
+// Select 4-5 random other countries for the sidebar
+const shuffled = (countriesData || [])
+  .filter((c) => c.slug.toLowerCase() !== (countryId || '').toLowerCase())
+  .sort(() => Math.random() - 0.5);
+setOtherCountries(shuffled.slice(0, 5));
 
         
       } catch (error) {
@@ -101,13 +114,18 @@ setRelatedBlogs(filtered);
       <main>
         {/* Hero Section */}
         <section className="relative h-[70vh] overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${country.featured_media_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&h=800&fit=crop'})` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40"></div>
-          </div>
-          
+          <img
+            src={country.featured_media_full_url || country.featured_media_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=2000&h=1200&fit=crop'}
+            srcSet={country.featured_media_srcset}
+            sizes="100vw"
+            alt={`${country.name} hero image`}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40"></div>
+
           <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
             <div className="max-w-5xl">
               <Link to="/" className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors group">
@@ -156,6 +174,10 @@ setRelatedBlogs(filtered);
                   <ContentRenderer 
                     content={country.content}
                     className="mb-8"
+                    showFullContent={false}
+                    maxHeight="14em"
+                    collapseAtChars={1}
+                    previewMode="mask"
                   />
                 </div>
 
@@ -254,6 +276,22 @@ setRelatedBlogs(filtered);
                   </div>
                 </Card>
 
+                {otherCountries.length > 0 && (
+                  <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-0 shadow-elevated">
+                    <h3 className="font-display text-xl font-bold text-foreground mb-4">Explore Other Countries</h3>
+                    <ul className="space-y-2">
+                      {otherCountries.slice(0, 5).map((c) => (
+                        <li key={c.id} className="flex items-center justify-between">
+                          <Link to={`/country/${c.slug}`} className="text-primary hover:underline">
+                            {c.name}
+                          </Link>
+                          
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                )}
+
                 {/* AdSense Sidebar Slot */}
                 <AdSenseSlot 
                   adSlot="2345678901"
@@ -282,15 +320,19 @@ setRelatedBlogs(filtered);
                 {cities.map((city) => (
                   <Link key={city.id} to={`/country/${countryId}/city/${city.slug}`}>
                     <Card className="group overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 bg-card border-0">
-                      <div className="relative">
-                        <div 
-                          className="h-48 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                          style={{ backgroundImage: `url(${city.featured_media_url || 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=300&fit=crop'})` }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                          <div className="absolute bottom-4 left-4 text-white">
-                            <h3 className="font-display text-xl font-bold mb-1">{city.name}</h3>
-                          </div>
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={city.featured_media_url || 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=300&fit=crop'}
+                          srcSet={city.featured_media_srcset}
+                          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                          alt={`${city.name} image`}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <div className="absolute bottom-4 left-4 text-white">
+                          <h3 className="font-display text-xl font-bold mb-1">{city.name}</h3>
                         </div>
                       </div>
                       
@@ -343,13 +385,17 @@ setRelatedBlogs(filtered);
                 {relatedBlogs.slice(0, 6).map((blog) => (
                   <Link key={blog.id} to={`/blog/${blog.slug}`}>
                     <Card className="group hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 bg-card border-0 overflow-hidden">
-                      <div className="relative">
-                        <div 
-                          className="h-48 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                          style={{ backgroundImage: `url(${blog.featured_image_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop'})` }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                        </div>
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={blog.featured_image_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop'}
+                          srcSet={blog.image_srcset}
+                          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                          alt={`${blog.title} image`}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                       </div>
                       
                       <CardContent className="p-6 space-y-4">

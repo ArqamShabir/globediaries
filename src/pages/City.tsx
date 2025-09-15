@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Clock, Star, Camera, Navigation, Utensils, ArrowLeft, ExternalLink } from 'lucide-react';
+import { MapPin, Clock, Star, Camera, Navigation, Utensils, ArrowLeft, ExternalLink, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -64,32 +64,20 @@ const City = () => {
       </div>
     );
   }
+  
+  const attractions: string[] =
+    Array.isArray(city.acf?.attractions)
+      ? (city.acf!.attractions as string[])
+      : typeof city.acf?.attractions === 'string'
+      ? (city.acf!.attractions as string).split(',').map((a) => a.trim())
+      : [];
 
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
       
       <main>
-        {/* Breadcrumb */}
-        <section className="py-6 bg-muted/20">
-          <div className="container mx-auto px-4">
-            <nav className="flex items-center space-x-2 text-sm">
-              <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
-                Home
-              </Link>
-              <span className="text-muted-foreground">/</span>
-              {countryId && (
-                <>
-                  <Link to={`/country/${countryId}`} className="text-muted-foreground hover:text-primary transition-colors capitalize">
-                    {countryId}
-                  </Link>
-                  <span className="text-muted-foreground">/</span>
-                </>
-              )}
-              <span className="text-foreground font-medium">{city.name}</span>
-            </nav>
-          </div>
-        </section>
+        
 
         {/* Hero Section */}
         <section className="relative">
@@ -143,44 +131,55 @@ const City = () => {
           </div>
         </section>
 
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <section className="py-20 bg-background">
+          <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Sidebar */}
-            <aside className="lg:col-span-3 space-y-6">
+            <aside className="space-y-6">
               {/* Ad Space */}
               <AdSenseSlot adSlot="1111111111" className="bg-muted/20 rounded-lg p-4" />
               
-              {/* Quick Info */}
-              <Card className="bg-gradient-to-br from-card to-muted/20 border-0 shadow-elevated">
-                <CardContent className="p-6">
-                  <h3 className="font-display text-lg font-bold mb-6 flex items-center">
+              {/* City Information */}
+              <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-0 shadow-elevated">
+                <CardContent className="p-0">
+                  <h3 className="font-display text-xl font-bold text-foreground mb-6 flex items-center">
                     <MapPin className="mr-2 h-5 w-5 text-primary" />
-                    Quick Info
+                    City Information
                   </h3>
-                  <div className="space-y-4 text-sm">
+                  <div className="space-y-6">
                     {city.acf?.country_slug && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Country:</span>
-                        <span className="font-semibold capitalize">{city.acf.country_slug}</span>
+                      <div className="flex items-start space-x-3">
+                        <MapPin className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <div className="font-semibold text-foreground">Country</div>
+                          <div className="text-muted-foreground capitalize">{city.acf.country_slug}</div>
+                        </div>
                       </div>
                     )}
                     {city.acf?.population && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Population:</span>
-                        <span className="font-semibold">{city.acf.population}</span>
+                      <div className="flex items-start space-x-3">
+                        <Users className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <div className="font-semibold text-foreground">Population</div>
+                          <div className="text-muted-foreground">{city.acf.population}</div>
+                        </div>
                       </div>
                     )}
                     {city.acf?.best_time && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Best Time:</span>
-                        <span className="font-semibold">{city.acf.best_time}</span>
+                      <div className="flex items-start space-x-3">
+                        <Clock className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <div className="font-semibold text-foreground">Best Time to Visit</div>
+                          <div className="text-muted-foreground">{city.acf.best_time}</div>
+                        </div>
                       </div>
                     )}
                     {city.acf?.coordinates && (
-                      <div className="pt-4 border-t border-border">
-                        <div className="text-muted-foreground mb-2">Coordinates:</div>
-                        <div className="text-xs font-mono bg-muted rounded px-2 py-1">
-                          {city.acf.coordinates.lat}, {city.acf.coordinates.lng}
+                      <div className="flex items-start space-x-3">
+                        <Navigation className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <div className="font-semibold text-foreground">Coordinates</div>
+                          <div className="text-muted-foreground text-xs font-mono">{city.acf.coordinates.lat}, {city.acf.coordinates.lng}</div>
                         </div>
                       </div>
                     )}
@@ -188,42 +187,14 @@ const City = () => {
                 </CardContent>
               </Card>
 
-              {/* Travel Guide */}
-              <Card className="bg-gradient-to-br from-card to-muted/20 border-0 shadow-elevated">
-                <CardContent className="p-6">
-                  <h3 className="font-display text-lg font-bold mb-6 flex items-center">
-                    <Navigation className="h-5 w-5 mr-2 text-primary" />
-                    Travel Guide
-                  </h3>
-                  <div className="space-y-4 text-sm">
-                    <div className="p-4 bg-background/50 rounded-lg">
-                      <div className="font-semibold text-foreground mb-2">Getting There</div>
-                      <p className="text-muted-foreground">
-                        Multiple transportation options available including airports, trains, and buses.
-                      </p>
-                    </div>
-                    <div className="p-4 bg-background/50 rounded-lg">
-                      <div className="font-semibold text-foreground mb-2">Local Transport</div>
-                      <p className="text-muted-foreground">
-                        Public transport, taxis, and walking are great ways to explore the city.
-                      </p>
-                    </div>
-                    <div className="p-4 bg-background/50 rounded-lg">
-                      <div className="font-semibold text-foreground mb-2">Best Areas</div>
-                      <p className="text-muted-foreground">
-                        City center and historic districts offer the best attractions and amenities.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              
 
               {/* Ad Space */}
               <AdSenseSlot adSlot="2222222222" className="bg-muted/20 rounded-lg p-4" />
             </aside>
 
             {/* Main Content */}
-            <div className="lg:col-span-9 space-y-12">
+            <div className="lg:col-span-2 space-y-12">
               {/* City Overview */}
               <section>
                 <h2 className="font-display text-4xl font-bold mb-8">
@@ -233,18 +204,22 @@ const City = () => {
                   content={city.content}
                   excerpt={city.excerpt}
                   className="mb-8"
+                  showFullContent={false}
+                  maxHeight="14em"
+                  collapseAtChars={1}
+                  previewMode="mask"
                 />
               </section>
 
               {/* Top Attractions */}
-              {city.acf?.attractions && city.acf.attractions.length > 0 && (
+              {attractions.length > 0 && (
                 <section>
                   <h2 className="font-display text-3xl font-bold mb-8 flex items-center">
                     <Camera className="h-8 w-8 mr-3 text-primary" />
                     Must-Visit Attractions
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {city.acf.attractions.map((attraction, index) => (
+                    {attractions.map((attraction, index) => (
                       <Card key={index} className="group hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-card to-muted/20">
                         <CardContent className="p-6">
                           <div className="flex items-start space-x-4">
@@ -301,30 +276,10 @@ const City = () => {
                 </section>
               )}
 
-              {/* Call to Action */}
-              <section className="text-center py-16 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl border border-primary/10">
-                <div className="max-w-3xl mx-auto">
-                  <h2 className="font-display text-4xl font-bold mb-6">Plan Your Trip to {city.name}</h2>
-                  <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                    Ready to explore {city.name}? Start planning your adventure today and discover everything this amazing destination has to offer!
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button size="lg" className="px-8 py-3">
-                      Find Hotels
-                    </Button>
-                    <Button size="lg" variant="outline" className="px-8 py-3">
-                      Book Tours
-                    </Button>
-                    <Button size="lg" variant="secondary" className="px-8 py-3">
-                      <ExternalLink className="mr-2 h-5 w-5" />
-                      Get Travel Guide
-                    </Button>
-                  </div>
-                </div>
-              </section>
+              
             </div>
           </div>
-        </div>
+        </div></section>
       </main>
       
       <Footer />

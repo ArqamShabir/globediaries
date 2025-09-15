@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { blogCategories, fetchWordPressPosts, formatBlogPost } from "@/data/blogs";
+import { Skeleton } from "@/components/ui/skeleton";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import { useState, useEffect } from "react";
 
@@ -56,27 +57,42 @@ const TravelBlogPreview = () => {
 
         {/* Featured Blog Posts */}
         {loading ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">Loading latest blog posts...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Card key={`blog-skel-${i}`} className="overflow-hidden border-0">
+                <div className="relative h-48">
+                  <Skeleton className="absolute inset-0" />
+                </div>
+                <CardContent className="p-6 space-y-3">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredBlogs.map((blog) => (
               <Link key={blog.id} to={`/blog/${blog.id}`} className="group">
                 <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 bg-card border-0">
-                  <div className="relative">
-                    <div 
-                      className="h-48 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                      style={{ backgroundImage: `url(${blog.image})` }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      <Badge className="absolute top-4 left-4 bg-secondary text-secondary-foreground font-semibold">
-                        Latest
-                      </Badge>
-                      <Badge className="absolute top-4 right-4 bg-primary/90 text-primary-foreground">
-                        {blog.category}
-                      </Badge>
-                    </div>
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={blog.image || '/placeholder.svg'}
+                      srcSet={blog.image_srcset}
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                      alt={`${blog.title} image`}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <Badge className="absolute top-4 left-4 bg-secondary text-secondary-foreground font-semibold">
+                      Latest
+                    </Badge>
+                    <Badge className="absolute top-4 right-4 bg-primary/90 text-primary-foreground">
+                      {blog.category}
+                    </Badge>
                   </div>
                   
                   <CardContent className="p-6 space-y-4">

@@ -34,6 +34,18 @@ const HeroSection = () => {
         <div className="max-w-4xl mx-auto space-y-8 py-8">
           {/* Main Heading */}
           <div className="space-y-6">
+            {/* Logo with rough CSS shade */}
+            <div className="flex items-center justify-center">
+              <span className="hero-logo block">
+                <img
+                  src="/logo.png"
+                  alt="GlobeDiaries logo"
+                  loading="eager"
+                  decoding="async"
+                  className="h-20 md:h-24 w-auto drop-shadow-md"
+                />
+              </span>
+            </div>
             <div className="flex items-center justify-center space-x-3 mb-6">
               <Globe className="h-8 w-8 text-secondary" />
               <h1 className="font-display text-5xl md:text-7xl font-bold text-white">

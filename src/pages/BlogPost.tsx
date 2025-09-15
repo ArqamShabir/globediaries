@@ -205,16 +205,20 @@ const BlogPost = () => {
           <h2 className="font-display text-3xl font-bold text-foreground mb-8">Related Posts</h2>
           {relatedPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {relatedPosts.map((relatedBlog) => (
-                <Link key={relatedBlog.id} to={`/blog/${relatedBlog.id}`} className="group">
+                {relatedPosts.map((relatedBlog) => (
+                  <Link key={relatedBlog.id} to={`/blog/${relatedBlog.id}`} className="group">
                   <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 bg-card border-0">
-                    <div className="relative">
-                      <div 
-                        className="h-40 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                        style={{ backgroundImage: `url(${relatedBlog.image})` }}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      </div>
+                    <div className="relative h-40 overflow-hidden">
+                      <img
+                        src={relatedBlog.image || '/placeholder.svg'}
+                        srcSet={relatedBlog.image_srcset}
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        alt={`${relatedBlog.title} image`}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     </div>
                     
                     <CardContent className="p-4 space-y-3">

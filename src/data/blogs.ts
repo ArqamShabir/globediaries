@@ -106,7 +106,34 @@ export const fetchWordPressCategories = async () => {
 
 // Helper functions to format WordPress data
 export const formatBlogPost = (post: BlogPost) => {
-  const featuredImage = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '/placeholder.svg';
+  const media: any = (post as any)?._embedded?.['wp:featuredmedia']?.[0];
+  const featuredImage =
+    media?.media_details?.sizes?.medium_large?.source_url ||
+    media?.media_details?.sizes?.large?.source_url ||
+    media?.media_details?.sizes?.medium?.source_url ||
+    media?.source_url ||
+    '/placeholder.svg';
+  // Build srcset from WP media sizes
+  const sizes = media?.media_details?.sizes || {};
+  const items: string[] = [];
+  const seen = new Set<number>();
+  for (const key of Object.keys(sizes)) {
+    const entry = (sizes as any)[key];
+    const w = entry?.width;
+    const url = entry?.source_url;
+    if (w && url && !seen.has(w)) {
+      items.push(`${url} ${w}w`);
+      seen.add(w);
+    }
+  }
+  const fullW = media?.media_details?.width;
+  const fullUrl = media?.source_url;
+  if (fullW && fullUrl && !seen.has(fullW)) {
+    items.push(`${fullUrl} ${fullW}w`);
+  }
+  const imageSrcSet = items.length
+    ? items.sort((a, b) => parseInt(a.split(' ')[1]) - parseInt(b.split(' ')[1])).join(', ')
+    : undefined;
   const author = post._embedded?.author?.[0]?.name || 'GlobeDiaries Team';
   const categories = post._embedded?.['wp:term']?.[0] || [];
   const category = categories.length > 0 ? categories[0].name : 'Travel';
@@ -117,6 +144,7 @@ export const formatBlogPost = (post: BlogPost) => {
     excerpt: post.excerpt.rendered.replace(/<[^>]*>/g, '').substring(0, 150) + '...',
     content: post.content.rendered,
     image: featuredImage,
+    image_srcset: imageSrcSet,
     author,
     date: new Date(post.date).toLocaleDateString('en-US', {
       year: 'numeric',

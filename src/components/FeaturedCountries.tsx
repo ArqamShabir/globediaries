@@ -4,14 +4,21 @@ import { MapPin, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { fetchWordPressCountries, WordPressCountry } from "@/data/wordpress"; // import fetch function
+import { Skeleton } from "@/components/ui/skeleton";
 
 const FeaturedCountries = () => {
   const [countries, setCountries] = useState<WordPressCountry[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadCountries = async () => {
-      const data = await fetchWordPressCountries();
-      setCountries(data);
+      try {
+        setLoading(true);
+        const data = await fetchWordPressCountries();
+        setCountries(data);
+      } finally {
+        setLoading(false);
+      }
     };
     loadCountries();
   }, []);
@@ -30,21 +37,41 @@ const FeaturedCountries = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {countries.map((country) => (
+          {loading && (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={`skeleton-${i}`} className="w-full">
+                <Card className="overflow-hidden border-0">
+                  <div className="relative h-48">
+                    <Skeleton className="absolute inset-0" />
+                  </div>
+                  <CardContent className="p-6 space-y-3">
+                    <Skeleton className="h-6 w-2/3" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                  </CardContent>
+                </Card>
+              </div>
+            ))
+          )}
+          {!loading && countries.slice(0, 6).map((country) => (
             <Link key={country.id} to={`/country/${country.slug}`}>
               <Card className="group overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 bg-card border-0">
-                <div className="relative">
-                  <div
-                    className="h-48 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                    style={{ backgroundImage: `url(${country.featured_media_url})` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <Badge className="absolute top-4 left-4 bg-secondary text-secondary-foreground font-semibold">
-                      Country
-                    </Badge>
-                  </div>
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={country.featured_media_url || '/placeholder.svg'}
+                    srcSet={country.featured_media_srcset}
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    alt={`${country.name} image`}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <Badge className="absolute top-4 left-4 bg-secondary text-secondary-foreground font-semibold">
+                    Country
+                  </Badge>
                 </div>
-
+                
                 <CardContent className="p-6 space-y-4">
                   <div className="space-y-2">
                     <h3 className="font-display text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
