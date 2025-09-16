@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { fetchWordPressCityBySlug, WordPressCity } from '@/data/wordpress';
+import SEO from "@/components/SEO";
 
 const City = () => {
   const { countryId, cityId } = useParams();
@@ -37,6 +38,7 @@ const City = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <SEO title="Loading city... | GlobeDiaries" />
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-muted rounded w-48 mx-auto"></div>
@@ -52,6 +54,7 @@ const City = () => {
     return (
       <div className="min-h-screen bg-background font-body">
         <Header />
+        <SEO title="City not found | GlobeDiaries" noindex />
         <main className="container mx-auto px-4 py-16">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">City Not Found</h1>
@@ -75,6 +78,11 @@ const City = () => {
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
+      <SEO 
+        title={`${city.name} Travel Guide | GlobeDiaries`}
+        description={city.description}
+        image={city.featured_media_url}
+      />
       
       <main>
         

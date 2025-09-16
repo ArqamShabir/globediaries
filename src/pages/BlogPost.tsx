@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import { fetchWordPressPost, formatBlogPost, fetchWordPressPosts } from "@/data/blogs";
+import SEO from "@/components/SEO";
 
 const BlogPost = () => {
   const { blogId } = useParams();
@@ -60,6 +61,7 @@ const BlogPost = () => {
     return (
       <div className="min-h-screen bg-background font-body">
         <Header />
+        <SEO title="Loading post... | GlobeDiaries" description="Reading travel story" />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading blog post...</p>
@@ -74,6 +76,7 @@ const BlogPost = () => {
     return (
       <div className="min-h-screen bg-background font-body">
         <Header />
+        <SEO title="Post not found | GlobeDiaries" noindex />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center py-16">
             <h1 className="font-display text-4xl font-bold text-foreground mb-4">
@@ -99,7 +102,12 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
-      
+      <SEO 
+        title={`${blog.title} | GlobeDiaries`}
+        description={blog.excerpt}
+        image={blog.image}
+      />
+     
       <main className="container mx-auto px-4 py-8">
         {/* Navigation */}
         <div className="mb-8">

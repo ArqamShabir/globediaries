@@ -26,12 +26,12 @@ const AdSenseSlot = ({
   }, []);
 
   return (
-    <div className={`adsense-container hidden ${className}`} style={style}>
+    <div className={`adsense-container ${className}`} style={style}>
       <div className="text-xs text-muted-foreground text-center mb-2">Advertisement</div>
       <ins
         className="adsbygoogle block"
         style={{ display: 'block', textAlign: 'center', ...style }}
-        data-ad-client="ca-pub-xxxxxxxxxx" // Replace with your AdSense client ID
+        data-ad-client="ca-pub-2897420441745530"
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
         data-full-width-responsive="true"

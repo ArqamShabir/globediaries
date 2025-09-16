@@ -10,6 +10,8 @@ import AdSenseSlot from "@/components/AdSenseSlot";
 import { WordPressCity } from "@/data/wordpress";
 import { useCitiesStore } from "@/store/citiesStore";
 import { WordPressCategory } from "@/data/blogs";
+import GridSkeleton from "@/components/GridSkeleton";
+import SEO from "@/components/SEO";
 
 const Cities = () => {
   const { cities, areas, loading } = useCitiesStore();
@@ -49,6 +51,10 @@ const Cities = () => {
       <Header />
 
       <main>
+        <SEO 
+          title="Explore Cities | GlobeDiaries"
+          description="Discover cities worldwide. Filter by country or area and find top attractions, tips, and more."
+        />
         {/* Hero Section */}
         <section className="py-16 bg-gradient-hero text-white text-center">
           <h1 className="font-display text-5xl md:text-6xl font-bold mb-6">
@@ -124,9 +130,7 @@ const Cities = () => {
         <section className="py-16 bg-background">
           <div className="container mx-auto px-4">
             {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading cities...</p>
-              </div>
+              <GridSkeleton count={9} />
             ) : filteredCities.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No cities found.</p>
@@ -176,7 +180,7 @@ const Cities = () => {
                         </div>
 
                         <div className="text-primary font-medium group-hover:text-primary-dark transition-colors pt-2">
-                          Explore →
+                          Explore ?
                         </div>
                       </CardContent>
                     </Card>
@@ -194,3 +198,4 @@ const Cities = () => {
 };
 
 export default Cities;
+

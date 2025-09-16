@@ -44,12 +44,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/cities" className="hidden text-primary-foreground/80 hover:text-secondary transition-colors">
+                <Link to="/cities" className="text-primary-foreground/80 hover:text-secondary transition-colors">
                   Cities
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="hidden text-primary-foreground/80 hover:text-secondary transition-colors">
+                <Link to="/blog" className="text-primary-foreground/80 hover:text-secondary transition-colors">
                   Travel Blog
                 </Link>
               </li>
@@ -94,7 +94,7 @@ const Footer = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-secondary" />
-                <span className="text-primary-foreground/80">info@globediaries.com</span>
+                <span className="text-primary-foreground/80">support@multishells.com</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-secondary" />

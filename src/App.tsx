@@ -19,6 +19,7 @@ import Disclaimer from "./pages/Disclaimer";
 import TermsOfService from "./pages/TermsOfService";
 import ScrollToTop from "./components/ScrollToTop";
 import BackToTop from "./components/BackToTop";
+import { HelmetProvider } from "react-helmet-async";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <HelmetProvider>
       <BrowserRouter>
        <ScrollToTop />
         <BackToTop />
@@ -38,10 +40,8 @@ const App = () => (
           <Route path="/cities" element={<Cities />} />
           <Route path="/city/:cityId" element={<City />} />
           <Route path="/country/:countryId/city/:cityId" element={<City />} />
-          {/*
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:blogId" element={<BlogPost />} />
-           ROUTE */}
           <Route path="/about" element={<About />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
@@ -52,6 +52,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </HelmetProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

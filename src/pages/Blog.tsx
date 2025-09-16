@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import { blogCategories, fetchWordPressPosts, formatBlogPost } from "@/data/blogs";
+import SEO from "@/components/SEO";
 
 const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -76,6 +77,10 @@ const loadMorePosts = async () => {
     <div className="min-h-screen bg-background font-body">
       <Header />
       <main>
+        <SEO 
+          title="Travel Stories & Guides | GlobeDiaries"
+          description="Curated travel stories, destination guides, and tips from the GlobeDiaries team and community."
+        />
         {/* Hero Section */}
         <section className="py-16 bg-gradient-hero text-white">
           <div className="container mx-auto px-4 text-center">
@@ -203,7 +208,8 @@ const loadMorePosts = async () => {
                           </div>
 
                           <div className="text-primary font-medium group-hover:text-primary-dark transition-colors pt-2">
-                            Read More ?                          </div>
+                            Read More →
+                          </div>
                         </CardContent>
                       </Card>
                     </Link>

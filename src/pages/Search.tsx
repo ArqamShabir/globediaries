@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdSenseSlot from "@/components/AdSenseSlot";
+import GridSkeleton from "@/components/GridSkeleton";
+import SEO from "@/components/SEO";
 
 import { fetchWordPressCountries, fetchWordPressCities } from "@/data/wordpress";
 import { fetchWordPressPosts, formatBlogPost } from "@/data/blogs";
@@ -226,6 +228,10 @@ const SearchPage = () => {
       <Header />
 
       <main>
+        <SEO 
+          title={`Search Results${initialQuery ? ` for "${initialQuery}"` : ''} | GlobeDiaries`}
+          description="Search countries, cities and travel stories on GlobeDiaries."
+        />
         {/* Hero Section */}
         <section className="py-16 bg-gradient-hero text-white">
           <div className="container mx-auto px-4 text-center">
@@ -329,9 +335,7 @@ const SearchPage = () => {
 
               {/* Results */}
               {loading ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">Searching...</p>
-                </div>
+                <GridSkeleton count={6} />
               ) : sortedResults.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedResults.map((result) => (

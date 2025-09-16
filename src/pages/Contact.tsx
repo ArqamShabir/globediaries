@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import AdSenseSlot from "@/components/AdSenseSlot";
+import SEO from "@/components/SEO";
 
 const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
@@ -18,11 +19,10 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
-      
-      {/* SEO Meta Tags */}
-      <title>Contact Us - GlobeDiaries | Get in Touch</title>
-      <meta name="description" content="Contact GlobeDiaries for travel inquiries, partnerships, or general questions. We'd love to hear from you and help plan your next adventure." />
-      <meta name="keywords" content="contact GlobeDiaries, travel inquiries, travel help, customer support" />
+      <SEO 
+        title="Contact Us - GlobeDiaries"
+        description="Contact GlobeDiaries for travel inquiries, partnerships, or general questions. We'd love to hear from you and help plan your next adventure."
+      />
       
       <main>
         {/* Hero Section */}
@@ -133,31 +133,13 @@ const Contact = () => {
                         <Mail className="h-6 w-6 text-primary mt-1" />
                         <div>
                           <h4 className="font-semibold text-foreground">Email Us</h4>
-                          <p className="text-muted-foreground">hello@globediaries.com</p>
-                          <p className="text-muted-foreground">support@globediaries.com</p>
+                          <p className="text-muted-foreground">support@multishells.com</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start space-x-4">
-                        <Phone className="h-6 w-6 text-primary mt-1" />
-                        <div>
-                          <h4 className="font-semibold text-foreground">Call Us</h4>
-                          <p className="text-muted-foreground">+1 (555) 123-4567</p>
-                          <p className="text-xs text-muted-foreground">Mon-Fri, 9 AM - 6 PM EST</p>
-                        </div>
-                      </div>
+                    
                       
-                      <div className="flex items-start space-x-4">
-                        <MapPin className="h-6 w-6 text-primary mt-1" />
-                        <div>
-                          <h4 className="font-semibold text-foreground">Visit Us</h4>
-                          <p className="text-muted-foreground">
-                            123 Travel Street<br />
-                            Adventure City, AC 12345<br />
-                            United States
-                          </p>
-                        </div>
-                      </div>
+                   
                     </div>
                   </CardContent>
                 </Card>
@@ -167,21 +149,21 @@ const Contact = () => {
                   adFormat="square"
                 />
 
-                <Card className="bg-card border-0 shadow-card">
+                <Card className="bg-card border-0 shadow-card hidden">
                   <CardContent className="p-6">
                     <h3 className="font-display text-xl font-bold text-foreground mb-4">Quick Links</h3>
                     <div className="space-y-3">
                       <div>
                         <h4 className="font-semibold text-foreground">For Press Inquiries</h4>
-                        <p className="text-sm text-muted-foreground">press@globediaries.com</p>
+                        <p className="text-sm text-muted-foreground">support@multishells.com</p>
                       </div>
                       <div>
                         <h4 className="font-semibold text-foreground">For Partnerships</h4>
-                        <p className="text-sm text-muted-foreground">partnerships@globediaries.com</p>
+                        <p className="text-sm text-muted-foreground">support@multishells.com</p>
                       </div>
                       <div>
                         <h4 className="font-semibold text-foreground">For Technical Issues</h4>
-                        <p className="text-sm text-muted-foreground">tech@globediaries.com</p>
+                        <p className="text-sm text-muted-foreground">support@multishells.com</p>
                       </div>
                     </div>
                   </CardContent>
@@ -218,7 +200,7 @@ const Contact = () => {
                     <h3 className="font-semibold text-foreground mb-3">How can I submit a travel story?</h3>
                     <p className="text-muted-foreground text-sm">
                       We welcome guest contributions! Send your story ideas to 
-                      submissions@globediaries.com with a brief outline.
+                      support@multishells.com with a brief outline.
                     </p>
                   </CardContent>
                 </Card>

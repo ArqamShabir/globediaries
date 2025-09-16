@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Globe, Users, MapPin, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import SEO from "@/components/SEO";
 
 const About = () => {
   const teamMembers = [
@@ -36,6 +37,10 @@ const About = () => {
     <div className="min-h-screen bg-background font-body">
       <Header />
       <main>
+        <SEO 
+          title="About GlobeDiaries"
+          description="Learn about GlobeDiaries' mission, team, and how we create helpful travel guides and stories."
+        />
         {/* Hero Section */}
         <section className="py-16 bg-gradient-hero text-white">
           <div className="container mx-auto px-4 text-center">

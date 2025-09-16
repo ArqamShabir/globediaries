@@ -10,6 +10,7 @@ import AdSenseSlot from "@/components/AdSenseSlot";
 import ContentRenderer from "@/components/ContentRenderer";
 import { fetchWordPressCountryBySlug, fetchCitiesByCountrySlug, fetchWordPressCountries, WordPressCountry, WordPressCity } from "@/data/wordpress";
 import { fetchWordPressPosts, formatBlogPost } from "@/data/blogs";
+import SEO from "@/components/SEO";
 
 const Country = () => {
   const { countryId } = useParams();
@@ -73,6 +74,7 @@ setOtherCountries(shuffled.slice(0, 5));
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <SEO title="Loading country... | GlobeDiaries" />
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-muted rounded w-48 mx-auto"></div>
@@ -88,6 +90,7 @@ setOtherCountries(shuffled.slice(0, 5));
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <SEO title="Country not found | GlobeDiaries" noindex />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl font-bold text-foreground mb-4">Country Not Found</h1>
           <p className="text-muted-foreground mb-8">The country you're looking for doesn't exist in our database.</p>
@@ -111,6 +114,11 @@ setOtherCountries(shuffled.slice(0, 5));
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
+      <SEO 
+        title={`${country.name} Travel Guide | GlobeDiaries`}
+        description={country.acf?.tagline || country.description}
+        image={country.featured_media_full_url || country.featured_media_url}
+      />
       <main>
         {/* Hero Section */}
         <section className="relative h-[70vh] overflow-hidden">
@@ -345,7 +353,7 @@ setOtherCountries(shuffled.slice(0, 5));
                         
                         <div className="flex items-center justify-between pt-4 border-t border-border">
                           <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">
-                            Explore City →
+                            Explore City ?
                           </div>
                           {city.acf?.best_time && (
                             <div className="text-sm text-muted-foreground">
@@ -440,3 +448,4 @@ setOtherCountries(shuffled.slice(0, 5));
 };
 
 export default Country;
+

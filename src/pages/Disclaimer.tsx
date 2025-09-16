@@ -1,10 +1,15 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 
 const Disclaimer = () => {
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
+      <SEO 
+        title="Disclaimer | GlobeDiaries"
+        description="Read our disclaimer regarding content accuracy, liability, and external links."
+      />
       <main className="py-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-8">
@@ -63,7 +68,7 @@ const Disclaimer = () => {
               </p>
               <div className="bg-muted/30 p-6 rounded-lg">
                 <p>
-                  <strong>Email:</strong> support@globediaries.com
+                  <strong>Email:</strong> support@multishells.com
                 </p>
                 <p>
                   <strong>Address:</strong> GlobeDiaries, Travel Content Team

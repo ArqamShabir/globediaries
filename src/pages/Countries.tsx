@@ -9,6 +9,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import { fetchWordPressCountries, WordPressCountry } from "@/data/wordpress";
+import GridSkeleton from "@/components/GridSkeleton";
+import SEO from "@/components/SEO";
 
 // Example categories (you can extend from WP taxonomy)
 const countryCategories = [
@@ -91,6 +93,10 @@ const Countries = () => {
     <div className="min-h-screen bg-background font-body">
       <Header />
       <main>
+        <SEO 
+          title="Explore Countries | GlobeDiaries"
+          description="Browse countries around the world with key facts, highlights and travel tips from GlobeDiaries."
+        />
         {/* Hero */}
         <section className="py-16 bg-gradient-hero text-white">
           <div className="container mx-auto px-4 text-center">
@@ -142,9 +148,7 @@ const Countries = () => {
         <section className="py-16 bg-background">
           <div className="container mx-auto px-4">
             {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading countries...</p>
-              </div>
+              <GridSkeleton count={9} />
             ) : filtered.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">
@@ -188,7 +192,7 @@ const Countries = () => {
                          
 
                           <div className="text-primary font-medium group-hover:text-primary-dark transition-colors pt-2">
-                            Explore →
+                            Explore ?
                           </div>
                         </CardContent>
                       </Card>
@@ -225,3 +229,7 @@ const Countries = () => {
 };
 
 export default Countries;
+
+
+
+

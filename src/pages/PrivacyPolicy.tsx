@@ -1,10 +1,15 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background font-body">
       <Header />
+      <SEO 
+        title="Privacy Policy | GlobeDiaries"
+        description="Read GlobeDiaries' Privacy Policy to learn how we collect, use, and protect your data."
+      />
       <main className="py-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-8">
@@ -124,7 +129,7 @@ const PrivacyPolicy = () => {
                 If you have any questions about this Privacy Policy, please contact us at:
               </p>
               <div className="bg-muted/30 p-6 rounded-lg">
-                <p><strong>Email:</strong> privacy@globediaries.com</p>
+                <p><strong>Email:</strong> support@multishells.com</p>
                 <p><strong>Address:</strong> GlobeDiaries, Travel Content Team</p>
               </div>
             </section>
