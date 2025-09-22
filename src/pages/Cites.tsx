@@ -161,7 +161,7 @@ const Cities = () => {
                           {city.name}
                         </h3>
                         <p className="text-muted-foreground line-clamp-3">
-                          {city.description}
+                          {(city.acf as any)?.cultural_vibe || city.description}
                         </p>
 
                         <div className="flex items-center justify-between pt-4 border-t border-border text-sm text-muted-foreground">

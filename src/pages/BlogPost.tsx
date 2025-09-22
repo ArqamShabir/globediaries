@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdSenseSlot from "@/components/AdSenseSlot";
-import { fetchWordPressPost, formatBlogPost, fetchWordPressPosts } from "@/data/blogs";
+import { fetchWordPressPost, fetchWordPressPostBySlug, formatBlogPost, fetchWordPressPosts } from "@/data/blogs";
 import SEO from "@/components/SEO";
 
 const BlogPost = () => {
@@ -21,7 +21,8 @@ const BlogPost = () => {
       if (!blogId) return;
       
       try {
-        const postData = await fetchWordPressPost(parseInt(blogId));
+        const isNumericId = /^\d+$/.test(blogId);
+        const postData = isNumericId ? await fetchWordPressPost(parseInt(blogId)) : await fetchWordPressPostBySlug(blogId);
         if (postData) {
           const formattedPost = formatBlogPost(postData);
           setBlog(formattedPost);
@@ -29,7 +30,7 @@ const BlogPost = () => {
           // Load related posts
           const related = await fetchWordPressPosts('', '', 1, 3);
           const filteredRelated = related
-            .filter(p => p.id !== parseInt(blogId))
+            .filter(p => (isNumericId ? p.id !== parseInt(blogId) : true))
             .map(formatBlogPost)
             .slice(0, 3);
           setRelatedPosts(filteredRelated);
@@ -121,20 +122,16 @@ const BlogPost = () => {
         </div>
 
         {/* Hero Image */}
-        <div className="relative mb-8">
-          <div 
-            className="h-64 md:h-96 bg-cover bg-center rounded-lg"
-            style={{ backgroundImage: `url(${blog.image})` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg"></div>
-            <div className="absolute bottom-6 left-6 right-6">
+        <div className="relative mb-8 h-64 md:h-96 rounded-lg overflow-hidden">
+          <img src={blog.image_full || blog.image} alt={blog.title} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div className="absolute bottom-6 left-6 right-6">
               <Badge className="mb-4 bg-primary text-primary-foreground">
                 {blog.category}
               </Badge>
               <h1 className="font-display text-3xl md:text-5xl font-bold text-white leading-tight">
                 {blog.title}
               </h1>
-            </div>
           </div>
         </div>
 
@@ -214,7 +211,7 @@ const BlogPost = () => {
           {relatedPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {relatedPosts.map((relatedBlog) => (
-                  <Link key={relatedBlog.id} to={`/blog/${relatedBlog.id}`} className="group">
+                  <Link key={relatedBlog.id} to={`/blog/${relatedBlog.slug}`} className="group">
                   <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 bg-card border-0">
                     <div className="relative h-40 overflow-hidden">
                       <img

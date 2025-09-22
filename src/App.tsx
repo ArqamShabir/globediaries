@@ -35,7 +35,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
            <Route path="/countries" element={<Countries />} />
-          <Route path="/country/:countryId" element={<Country />} />
+          <Route path="/country/:slug" element={<Country />} />
           
           <Route path="/cities" element={<Cities />} />
           <Route path="/city/:cityId" element={<City />} />

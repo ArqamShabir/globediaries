@@ -13,6 +13,7 @@ import GridSkeleton from "@/components/GridSkeleton";
 import SEO from "@/components/SEO";
 
 import { fetchWordPressCountries, fetchWordPressCities } from "@/data/wordpress";
+import { getCountryAcfString } from "@/lib/countryAcf";
 import { fetchWordPressPosts, formatBlogPost } from "@/data/blogs";
 
 interface SearchResult {
@@ -91,33 +92,35 @@ const SearchPage = () => {
   const countryNames = new Set(wpCountries.map(c => c.name.toLowerCase()));
   const cityNames = new Set(wpCities.map(c => c.name.toLowerCase()));
 
-  // ✅ Search WordPress Countries
+  // ✅ Search WordPress Countries (title-only match)
   wpCountries.forEach((country) => {
-    if (
-      country.name.toLowerCase().includes(lowerQuery) ||
-      country.description.toLowerCase().includes(lowerQuery) ||
-      country.acf?.capital?.toLowerCase().includes(lowerQuery)
-    ) {
+    const acf = country.acf;
+    const displayName = getCountryAcfString(acf, "country_name") || country.name;
+    const displayTagline = getCountryAcfString(acf, "tagline") || country.description;
+
+    const matchesQuery = displayName.toLowerCase().includes(lowerQuery);
+
+    if (matchesQuery) {
       searchResults.push({
         id: country.id.toString(),
-        title: country.name,
-        description: country.description,
+        title: displayName,
+        description: displayTagline,
         type: "country",
         image: country.featured_media_url,
         image_srcset: country.featured_media_srcset,
+        category: "Country",
         url: `/country/${country.slug}`,
-        tagline: country.acf?.tagline || "",
+        tagline: displayTagline,
       });
     }
   });
-
-  // ✅ Search WordPress Cities
+  // ✅ Search WordPress Cities (title-only match)
   wpCities.forEach((city) => {
-    if (
-      city.name.toLowerCase().includes(lowerQuery) ||
-      city.description.toLowerCase().includes(lowerQuery) ||
-      city.acf?.country_slug?.toLowerCase().includes(lowerQuery)
-    ) {
+    if (city.name.toLowerCase().includes(lowerQuery)) {
+      const cityTagline =
+        (city.acf?.cultural_vibe as string | undefined) ||
+        (city.acf?.overview as string | undefined) ||
+        city.description;
       searchResults.push({
         id: city.id.toString(),
         title: city.name,
@@ -126,24 +129,18 @@ const SearchPage = () => {
         image: city.featured_media_url,
         image_srcset: city.featured_media_srcset,
         url: `/country/${city.acf?.country_slug || "unknown"}/city/${city.slug}`,
+        tagline: cityTagline,
       });
     }
   });
 
-  // ✅ Search WordPress Blogs
+  // ✅ Search WordPress Blogs (title-only match)
   blogPosts.forEach((blog) => {
-    // quick guards
     const blogTitle = blog.title.toLowerCase();
-    const categoriesString = (blog.categories || []).join(" ").toLowerCase(); // category names joined
+    const categoriesString = (blog.categories || []).join(" ").toLowerCase();
     const categoryMain = (blog.category || "").toLowerCase();
 
-    const matchesQuery =
-      blogTitle.includes(lowerQuery) ||
-      (blog.excerpt && blog.excerpt.toLowerCase().includes(lowerQuery)) ||
-      categoryMain.includes(lowerQuery) ||
-      (blog.tags && blog.tags.some((tag: string) => tag.toLowerCase().includes(lowerQuery)));
-
-    if (!matchesQuery) return;
+    if (!blogTitle.includes(lowerQuery)) return;
 
     // 1) skip blogs that are actually place-category posts
     if (/country|countries|city|cities/.test(categoryMain + " " + categoriesString)) {
@@ -166,6 +163,7 @@ const SearchPage = () => {
       category: blog.category,
       date: blog.date,
       url: `/blog/${blog.id}`,
+      tagline: blog.excerpt,
     });
   });
 
@@ -372,7 +370,6 @@ const SearchPage = () => {
                           <p className="text-muted-foreground line-clamp-3">
                             {result.tagline}
                           </p>
-
                           <div className="flex items-center justify-between pt-2">
                             {result.category && (
                               <Badge variant="secondary" className="text-xs">

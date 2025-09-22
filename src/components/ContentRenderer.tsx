@@ -36,6 +36,7 @@ const ContentRenderer = ({
   readingTime
 }: ContentRendererProps) => {
   const [isExpanded, setIsExpanded] = useState(showFullContent);
+  const [measuredOverflow, setMeasuredOverflow] = useState(false);
   
   // Utilities to sanitize and enhance WP HTML content
   const enhanceImages = (html: string) =>
@@ -55,11 +56,14 @@ const ContentRenderer = ({
   const cleanContent = useMemo(() => {
     const stripped = content
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+      .replace(/<!--([\s\S]*?)-->/g, '');
     return enhanceImages(stripped);
   }, [content]);
   
-  const hasLongContent = cleanContent.length > collapseAtChars;
+  const hasLongContentByChars = cleanContent.length > collapseAtChars;
+  // Final decision will also consider measured overflow (pixel height)
+  const hasLongContent = hasLongContentByChars || measuredOverflow;
   const displayContent = isExpanded
     ? cleanContent
     : previewMode === 'mask'
@@ -68,6 +72,204 @@ const ContentRenderer = ({
 
   // Ref for smooth scroll on toggle
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+
+  // Enhance WordPress block markup (TOC, FAQ, code, tables, etc.)
+  useEffect(() => {
+    const container = contentRef.current;
+    if (!container) return;
+
+    const markEnhanced = (el: Element) => el.setAttribute('data-wp-enhanced', 'true');
+    const isEnhanced = (el: Element) => el.getAttribute('data-wp-enhanced') === 'true';
+
+    // Table of Contents blocks
+    const tocSelectors = ['.wp-block-table-of-contents', '#ez-toc-container', '.toc-container'];
+    tocSelectors.forEach((selector) => {
+      container.querySelectorAll<HTMLElement>(selector).forEach((toc) => {
+        if (isEnhanced(toc)) return;
+        markEnhanced(toc);
+        toc.classList.add('border', 'border-border', 'rounded-xl', 'bg-card/70', 'p-5', 'shadow-sm', 'backdrop-blur-sm');
+
+        const heading = toc.querySelector<HTMLElement>('h1, h2, h3, h4, h5, h6, .ez-toc-title, .toc-title, p:first-child');
+        if (heading) {
+          heading.classList.add('text-xs', 'uppercase', 'tracking-widest', 'font-semibold', 'text-muted-foreground', 'mb-3');
+        }
+
+        toc.querySelectorAll<HTMLUListElement>('ul').forEach((ul) => {
+          ul.classList.add('space-y-2', 'pl-4', 'text-sm');
+        });
+
+        toc.querySelectorAll<HTMLLIElement>('li').forEach((li) => {
+          li.classList.add('text-muted-foreground', 'transition-colors', 'hover:text-primary');
+        });
+
+        toc.querySelectorAll<HTMLAnchorElement>('a').forEach((anchor) => {
+          anchor.classList.add('hover:text-primary', 'focus-visible:outline-none', 'focus-visible:ring-1', 'focus-visible:ring-primary', 'rounded');
+        });
+      });
+    });
+
+    // FAQ blocks (Yoast, core details, etc.)
+    const faqSelectors = [
+      '.wp-block-yoast-faq-block',
+      '.schema-faq-section',
+      '.wp-block-details',
+      '.faq',
+    ];
+
+    container.querySelectorAll<HTMLElement>(faqSelectors.join(',')).forEach((faqWrapper) => {
+      // If this is a Yoast wrapper, handle its sections individually
+      if (faqWrapper.classList.contains('wp-block-yoast-faq-block')) {
+        if (isEnhanced(faqWrapper)) return;
+        faqWrapper.classList.add('space-y-3');
+        faqWrapper.querySelectorAll<HTMLElement>('.schema-faq-section').forEach((section) => {
+          if (isEnhanced(section)) return;
+          const question = section.querySelector<HTMLElement>('.schema-faq-question');
+          const answer = section.querySelector<HTMLElement>('.schema-faq-answer');
+          if (!question || !answer) return;
+
+          const details = document.createElement('details');
+          details.className = 'group border border-border rounded-xl bg-card/70 px-5 py-4 shadow-sm transition-all duration-200';
+
+          const summary = document.createElement('summary');
+          summary.className = 'flex items-center justify-between cursor-pointer text-foreground font-semibold';
+          summary.innerHTML = `${question.innerHTML}`;
+
+          const chevron = document.createElement('span');
+          chevron.className = 'ml-3 text-muted-foreground transition-transform duration-200 group-open:-rotate-180';
+          chevron.innerHTML = '&#9662;';
+          summary.appendChild(chevron);
+
+          const answerWrap = document.createElement('div');
+          answerWrap.className = 'mt-3 text-muted-foreground leading-relaxed space-y-2';
+          answerWrap.innerHTML = answer.innerHTML;
+
+          details.appendChild(summary);
+          details.appendChild(answerWrap);
+
+          section.replaceWith(details);
+          markEnhanced(details);
+        });
+        markEnhanced(faqWrapper);
+        return;
+      }
+
+      if (faqWrapper.tagName.toLowerCase() === 'details') {
+        faqWrapper.classList.add('group', 'border', 'border-border', 'rounded-xl', 'bg-card/70', 'px-5', 'py-4', 'shadow-sm');
+        const summary = faqWrapper.querySelector('summary');
+        if (summary && !summary.querySelector('.faq-chevron')) {
+          summary.classList.add('flex', 'items-center', 'justify-between', 'cursor-pointer', 'font-semibold', 'text-foreground');
+          const chevron = document.createElement('span');
+          chevron.className = 'faq-chevron ml-3 text-muted-foreground transition-transform duration-200 group-open:-rotate-180';
+          chevron.innerHTML = '&#9662;';
+          summary.appendChild(chevron);
+        }
+        faqWrapper.querySelectorAll('*:not(summary)').forEach((el) => {
+          (el as HTMLElement).classList.add('text-muted-foreground');
+        });
+        markEnhanced(faqWrapper);
+        return;
+      }
+
+      if (faqWrapper.matches('.schema-faq-section, .faq-item')) {
+        if (isEnhanced(faqWrapper)) return;
+        const question = faqWrapper.querySelector('h2, h3, h4, strong, .schema-faq-question');
+        const answer = faqWrapper.querySelector('p, div, .schema-faq-answer');
+        if (!question || !answer) return;
+        const details = document.createElement('details');
+        details.className = 'group border border-border rounded-xl bg-card/70 px-5 py-4 shadow-sm';
+        const summary = document.createElement('summary');
+        summary.className = 'flex items-center justify-between cursor-pointer text-foreground font-semibold';
+        summary.innerHTML = question.innerHTML;
+        const chevron = document.createElement('span');
+        chevron.className = 'ml-3 text-muted-foreground transition-transform duration-200 group-open:-rotate-180';
+        chevron.innerHTML = '&#9662;';
+        summary.appendChild(chevron);
+        const body = document.createElement('div');
+        body.className = 'mt-3 text-muted-foreground leading-relaxed space-y-2';
+        body.innerHTML = answer.innerHTML;
+        details.appendChild(summary);
+        details.appendChild(body);
+        faqWrapper.replaceWith(details);
+        markEnhanced(details);
+      }
+    });
+
+    // Code blocks
+    container.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
+      if (isEnhanced(pre)) return;
+      pre.classList.add('bg-muted/80', 'rounded-xl', 'border', 'border-border', 'p-4', 'overflow-x-auto', 'shadow-inner');
+      pre.setAttribute('tabindex', '0');
+      markEnhanced(pre);
+    });
+
+    container.querySelectorAll<HTMLElement>('pre code').forEach((code) => {
+      if (isEnhanced(code)) return;
+      code.classList.add('block', 'text-sm', 'leading-relaxed');
+      markEnhanced(code);
+    });
+
+    container.querySelectorAll<HTMLTableElement>('table').forEach((table) => {
+      if (isEnhanced(table)) return;
+      table.classList.add('w-full', 'border', 'border-border', 'rounded-xl', 'overflow-hidden');
+      const wrapper = document.createElement('div');
+      wrapper.className = 'overflow-x-auto rounded-xl border border-border bg-card/70 shadow-sm';
+      table.parentElement?.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+      table.querySelectorAll('th').forEach((th) => {
+        th.classList.add('bg-muted/70', 'p-3', 'text-left', 'font-semibold', 'text-foreground');
+      });
+      table.querySelectorAll('td').forEach((td) => {
+        td.classList.add('p-3', 'text-muted-foreground', 'align-top');
+      });
+      markEnhanced(table);
+    });
+
+    // Blockquotes tidy
+    container.querySelectorAll<HTMLQuoteElement>('blockquote').forEach((blockquote) => {
+      if (isEnhanced(blockquote)) return;
+      blockquote.classList.add('relative', 'border-l-4', 'border-primary', 'bg-primary/5', 'p-5', 'rounded-r-xl');
+      markEnhanced(blockquote);
+    });
+  }, [displayContent, isExpanded]);
+
+  // Measure content height vs provided maxHeight (supports px and em) and set measuredOverflow
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const parseMaxHeight = (val: string | undefined): number | undefined => {
+      if (!val) return undefined;
+      const s = String(val).trim();
+      if (s.endsWith('px')) return parseFloat(s.replace('px', ''));
+      if (s.endsWith('em')) return parseFloat(s.replace('em', '')) * 16; // assume 16px base
+      if (s.endsWith('%')) return undefined; // percent-based heights are tricky
+      const n = parseFloat(s);
+      return isNaN(n) ? undefined : n;
+    };
+
+    const measure = () => {
+      requestAnimationFrame(() => {
+        const el = contentRef.current as HTMLDivElement;
+        const maxH = parseMaxHeight((maxHeight as string) || undefined);
+        if (maxH && el) {
+          const scrollH = el.scrollHeight;
+          setMeasuredOverflow(scrollH > maxH + 2); // small tolerance
+        } else {
+          // if no pixel maxHeight provided, fallback to char-based
+          setMeasuredOverflow(false);
+        }
+      });
+    };
+
+    measure();
+    // also measure when images/fonts load (try a short interval for dynamic content)
+    const iv = setInterval(measure, 500);
+    const to = setTimeout(() => clearInterval(iv), 3000);
+    return () => {
+      clearInterval(iv);
+      clearTimeout(to);
+    };
+  }, [cleanContent, maxHeight]);
 
   const firstToggle = useRef(true);
   useEffect(() => {
@@ -142,6 +344,7 @@ const ContentRenderer = ({
       <Card ref={rootRef} className="border-none shadow-none bg-transparent">
         <CardContent className="p-0">
           <div
+            ref={contentRef}
             className={`
               prose prose-lg max-w-none
               prose-headings:font-display prose-headings:text-foreground

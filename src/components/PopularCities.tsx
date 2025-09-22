@@ -83,38 +83,13 @@ const PopularCities = () => {
                     decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                  
-                  {/* City name overlay */}
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="font-display text-2xl font-bold">{city.name}</h3>
-                    <p className="text-white/90 text-sm">{city.acf?.country || (city.acf?.country_slug ? city.acf.country_slug.replace(/-/g, ' ').replace(/\b\w/g, (s) => s.toUpperCase()) : "Unknown Country")}</p>
-                  </div>
-
-                  {/* Rating badge (if you want to support ratings via ACF) */}
-                  {city.acf?.population && (
-                    <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
-                      <Star className="h-4 w-4 text-secondary fill-current" />
-                      <span className="text-white font-semibold text-sm">
-                        {city.acf.population}
-                      </span>
-                    </div>
-                  )}
                 </div>
                 
-                <CardContent className="p-6 space-y-4">
-                  <p className="text-muted-foreground leading-relaxed">
-                    {city.description}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center space-x-1 text-sm text-primary font-medium">
-                      <Camera className="h-4 w-4" />
-                      <span>{city.acf?.attractions?.length || 0} attractions</span>
-                    </div>
-                    <div className="text-sm text-accent font-medium group-hover:text-accent-foreground transition-colors">
-                      Explore â†’
-                    </div>
+                <CardContent className="p-6 space-y-3">
+                  <h3 className="font-display text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{city.name}</h3>
+                  <p className="text-muted-foreground text-sm line-clamp-2">{(city.acf as any)?.cultural_vibe || city.description}</p>
+                  <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">
+                    Read more →
                   </div>
                 </CardContent>
               </Card>

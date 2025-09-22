@@ -25,14 +25,17 @@ useEffect(() => {
     setLoading(true);
     try {
       const categorySlug = selectedCategory === "All" ? "" : blogCategories.find(cat => cat.name === selectedCategory)?.slug || "";
-      const posts = await fetchWordPressPosts(categorySlug, searchTerm, 1, 12);
+      const posts = await fetchWordPressPosts("", searchTerm, 1, 12);
       const formattedPosts = posts.map(formatBlogPost);
 
       const filteredPosts = formattedPosts.filter((post) => {
-        const catLower = (post.category || "").toLowerCase();
-        const categoriesList = (post.categories || []).map((c: string) => c.toLowerCase()).join(" ");
-        // exclude any post whose category or any category name looks like country/cities
-        return !/country|countries|city|cities/.test(catLower + " " + categoriesList);
+        const acfSlug = (post.blog_acf_category_slug || "").toLowerCase();
+        if (!categorySlug) {
+          // ALL: Use default WP categories; include only posts that have WP category 'blog'
+          return post.has_wp_blog_category === true;
+        }
+        // Specific category: still use ACF blog_category
+        return acfSlug === categorySlug;
       });
 
       setBlogs(filteredPosts);
@@ -54,14 +57,15 @@ const loadMorePosts = async () => {
   try {
     const categorySlug = selectedCategory === "All" ? "" : blogCategories.find(cat => cat.name === selectedCategory)?.slug || "";
     const nextPage = page + 1;
-    const posts = await fetchWordPressPosts(categorySlug, searchTerm, nextPage, 12);
+    const posts = await fetchWordPressPosts("", searchTerm, nextPage, 12);
     const formattedPosts = posts.map(formatBlogPost);
 
-    // Filter out place-category posts just like initial load
     const filteredNew = formattedPosts.filter((post) => {
-      const catLower = (post.category || "").toLowerCase();
-      const categoriesList = (post.categories || []).map((c: string) => c.toLowerCase()).join(" ");
-      return !/country|countries|city|cities/.test(catLower + " " + categoriesList);
+      const acfSlug = (post.blog_acf_category_slug || "").toLowerCase();
+      if (!categorySlug) {
+        return post.has_wp_blog_category === true;
+      }
+      return acfSlug === categorySlug;
     });
 
     setBlogs(prev => [...prev, ...filteredNew]);
@@ -161,7 +165,7 @@ const loadMorePosts = async () => {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {blogs.map((blog) => (
-                    <Link key={blog.id} to={`/blog/${blog.id}`} className="group">
+                    <Link key={blog.id} to={`/blog/${blog.slug}`} className="group">
                       <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 bg-card border-0 h-full">
                         <div className="relative h-48 overflow-hidden">
                           <img
@@ -179,7 +183,7 @@ const loadMorePosts = async () => {
                             variant="secondary"
                             className="absolute top-4 right-4 bg-white/90 text-foreground"
                           >
-                            {blog.category}
+                            {blog.blog_acf_category || blog.category}
                           </Badge>
                         </div>
                         

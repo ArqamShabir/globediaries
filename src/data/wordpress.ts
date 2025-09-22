@@ -9,15 +9,22 @@ export interface WordPressCountry {
   featured_media_full_url?: string;
   featured_media_srcset?: string;
   acf?: {
-    tagline?: string;
-    capital?: string;
-    population?: string;
+    country_name?: string;
     continent?: string;
-    language?: string;
+    Continent?: string;
+    capital_city?: string;
+    Capital_City?: string;
     currency?: string;
-    best_time?: string;
-    overview?: string;
-    attractions?: string | string[];
+    Currency?: string;
+    country_population?: string | number;
+    Country_Population?: string | number;
+    official_language?: string;
+    Official_Language?: string;
+    time_zone?: string;
+    best_time_to_visit?: string;
+    Best_Time_to_Visit?: string;
+    tagline?: string;
+    national_flag?: string;
   };
   categories: number[];
   tags: number[];
@@ -49,14 +56,33 @@ export interface WordPressCity {
   categories: number[];
   tags: number[];
 }
-
 const WORDPRESS_BASE_URL = 'https://lightseagreen-badger-976849.hostingersite.com/wp-json/wp/v2';
 
+// Small typed shapes for featured media and posts to avoid `any` in this module
+type WpMedia = {
+  source_url?: string;
+  media_details?: {
+    width?: number;
+    sizes?: Record<string, { width?: number; source_url?: string }>;
+  };
+};
+
+type WpPost = {
+  id: number;
+  slug: string;
+  title: { rendered: string };
+  excerpt: { rendered: string };
+  content: { rendered: string };
+  _embedded?: { 'wp:featuredmedia'?: WpMedia[] };
+  acf?: Record<string, unknown>;
+  categories?: number[];
+  tags?: number[];
+};
+
 // Build a srcset string from WP media sizes
-const buildSrcSet = (media: any): string | undefined => {
+const buildSrcSet = (media?: WpMedia): string | undefined => {
   const sizes = media?.media_details?.sizes || {};
   const items: string[] = [];
-  // Collect width candidates, avoiding duplicates
   const seen = new Set<number>();
   for (const key of Object.keys(sizes)) {
     const entry = sizes[key];
@@ -67,13 +93,12 @@ const buildSrcSet = (media: any): string | undefined => {
       seen.add(w);
     }
   }
-  // Fallback to original
   const fullW = media?.media_details?.width;
   const fullUrl = media?.source_url;
   if (fullW && fullUrl && !seen.has(fullW)) {
     items.push(`${fullUrl} ${fullW}w`);
   }
-  return items.length ? items.sort((a, b) => parseInt(a.split(' ')[1]) - parseInt(b.split(' ')[1])).join(', ') : undefined;
+  return items.length ? items.sort((a, b) => parseInt(a.split(' ')[1], 10) - parseInt(b.split(' ')[1], 10)).join(', ') : undefined;
 };
 
 export const fetchWordPressCountries = async (): Promise<WordPressCountry[]> => {
@@ -85,21 +110,31 @@ export const fetchWordPressCountries = async (): Promise<WordPressCountry[]> => 
       throw new Error('Failed to fetch countries');
     }
     
-    const posts = await response.json();
+    const posts = (await response.json()) as WpPost[];
     
-    return posts.map((post: any) => {
+    return posts.map((post: WpPost) => {
       const media = post._embedded?.['wp:featuredmedia']?.[0];
       const sizedUrl =
-        media?.media_details?.sizes?.medium_large?.source_url ||
-        media?.media_details?.sizes?.large?.source_url ||
-        media?.media_details?.sizes?.medium?.source_url ||
+        (media?.media_details?.sizes?.medium_large?.source_url as string | undefined) ||
+        (media?.media_details?.sizes?.large?.source_url as string | undefined) ||
+        (media?.media_details?.sizes?.medium?.source_url as string | undefined) ||
         media?.source_url;
       const srcset = buildSrcSet(media);
 
+      // Generate slug from country name
+      const countryName = post.title.rendered;
+      const nameSlug = countryName
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+
       return {
         id: post.id,
-        slug: post.slug,
-        name: post.title.rendered,
+        slug: nameSlug,
+        name: countryName,
         description: post.excerpt.rendered.replace(/<[^>]*>/g, '').slice(0, 200),
         excerpt: post.excerpt.rendered,
         content: post.content.rendered,
@@ -125,14 +160,14 @@ export const fetchWordPressCities = async (): Promise<WordPressCity[]> => {
       throw new Error('Failed to fetch cities');
     }
     
-    const posts = await response.json();
-    
-    return posts.map((post: any) => {
+    const posts = (await response.json()) as WpPost[];
+
+    return posts.map((post: WpPost) => {
       const media = post._embedded?.['wp:featuredmedia']?.[0];
       const sizedUrl =
-        media?.media_details?.sizes?.medium_large?.source_url ||
-        media?.media_details?.sizes?.large?.source_url ||
-        media?.media_details?.sizes?.medium?.source_url ||
+        (media?.media_details?.sizes?.medium_large?.source_url as string | undefined) ||
+        (media?.media_details?.sizes?.large?.source_url as string | undefined) ||
+        (media?.media_details?.sizes?.medium?.source_url as string | undefined) ||
         media?.source_url;
       const srcset = buildSrcSet(media);
 
@@ -167,22 +202,35 @@ export const fetchWordPressCountryBySlug = async (slug: string): Promise<WordPre
     const posts = await response.json();
     
     if (posts.length === 0) {
-      return null;
+      // Fallback: query all countries and find by slug (resilient to WP REST differences)
+      const all = await fetchWordPressCountries();
+      const found = all.find((c) => c.slug === slug || c.slug === decodeURIComponent(slug));
+      return found ?? null;
     }
+
+    const post = posts[0] as WpPost;
     
-    const post = posts[0];
-    
-    const media = post._embedded?.['wp:featuredmedia']?.[0];
+  const media = post._embedded?.['wp:featuredmedia']?.[0];
     const sizedUrl = media?.source_url ||
       media?.media_details?.sizes?.large?.source_url ||
       media?.media_details?.sizes?.medium_large?.source_url ||
       media?.media_details?.sizes?.medium?.source_url;
-    const srcset = buildSrcSet(media);
+  const srcset = buildSrcSet(media);
+
+    // Generate slug from country name
+    const countryName = post.title.rendered;
+    const nameSlug = countryName
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, 'and')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
 
     return {
       id: post.id,
-      slug: post.slug,
-      name: post.title.rendered,
+      slug: nameSlug,
+      name: countryName,
       description: post.excerpt.rendered.replace(/<[^>]*>/g, '').slice(0, 200),
       excerpt: post.excerpt.rendered,
       content: post.content.rendered,
@@ -207,21 +255,21 @@ export const fetchWordPressCityBySlug = async (slug: string): Promise<WordPressC
       throw new Error('Failed to fetch city');
     }
     
-    const posts = await response.json();
+  const posts = (await response.json()) as WpPost[];
     
     if (posts.length === 0) {
       return null;
     }
     
-    const post = posts[0];
+  const post = posts[0];
     
-    const media = post._embedded?.['wp:featuredmedia']?.[0];
+  const media = post._embedded?.['wp:featuredmedia']?.[0];
     const sizedUrl =
       media?.media_details?.sizes?.large?.source_url ||
       media?.media_details?.sizes?.medium_large?.source_url ||
       media?.media_details?.sizes?.medium?.source_url ||
       media?.source_url;
-    const srcset = buildSrcSet(media);
+  const srcset = buildSrcSet(media);
 
     return {
       id: post.id,
@@ -251,7 +299,7 @@ export const fetchCitiesByCountrySlug = async (countrySlug: string): Promise<Wor
       throw new Error('Failed to fetch cities');
     }
     
-    const posts = await response.json();
+  const posts = (await response.json()) as WpPost[];
     
     const slugify = (s: string) =>
       s
@@ -263,12 +311,12 @@ export const fetchCitiesByCountrySlug = async (countrySlug: string): Promise<Wor
         .replace(/-+/g, '-');
 
     return posts
-      .map((post: any) => {
+      .map((post: WpPost) => {
         const media = post._embedded?.['wp:featuredmedia']?.[0];
         const sizedUrl =
-          media?.media_details?.sizes?.medium_large?.source_url ||
-          media?.media_details?.sizes?.large?.source_url ||
-          media?.media_details?.sizes?.medium?.source_url ||
+          (media?.media_details?.sizes?.medium_large?.source_url as string | undefined) ||
+          (media?.media_details?.sizes?.large?.source_url as string | undefined) ||
+          (media?.media_details?.sizes?.medium?.source_url as string | undefined) ||
           media?.source_url;
         const srcset = buildSrcSet(media);
 

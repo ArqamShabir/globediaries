@@ -9,14 +9,24 @@ import AdSenseSlot from "@/components/AdSenseSlot";
 import { useState, useEffect } from "react";
 
 const TravelBlogPreview = () => {
-  const [featuredBlogs, setFeaturedBlogs] = useState<any[]>([]);
+  type Formatted = ReturnType<typeof formatBlogPost>;
+  const [featuredBlogs, setFeaturedBlogs] = useState<Formatted[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        const posts = await fetchWordPressPosts('', '', 1, 3);
-        const formattedPosts = posts.map(formatBlogPost);
+  const posts: unknown[] = await fetchWordPressPosts('', '', 1, 10);
+        // Filter out posts that are actually countries or cities
+        // Category IDs used elsewhere: countries => 4, cities => 5
+        const filtered = posts.filter((p) => {
+          const rp = p as { categories?: number[] };
+          const cats: number[] = rp.categories || [];
+          return !cats.includes(4) && !cats.includes(5);
+        });
+
+        // Limit to 3 featured blog posts after filtering
+        const formattedPosts = filtered.slice(0, 3).map(formatBlogPost);
         setFeaturedBlogs(formattedPosts);
       } catch (error) {
         console.error('Error loading blog posts:', error);
@@ -74,7 +84,7 @@ const TravelBlogPreview = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredBlogs.map((blog) => (
-              <Link key={blog.id} to={`/blog/${blog.id}`} className="group">
+              <Link key={blog.id} to={`/blog/${blog.slug}`} className="group">
                 <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 bg-card border-0">
                   <div className="relative h-48 overflow-hidden">
                     <img

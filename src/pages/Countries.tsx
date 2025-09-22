@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Globe, Users, Landmark, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import AdSenseSlot from "@/components/AdSenseSlot";
 import { fetchWordPressCountries, WordPressCountry } from "@/data/wordpress";
 import GridSkeleton from "@/components/GridSkeleton";
 import SEO from "@/components/SEO";
+import { getCountryAcfString } from "@/lib/countryAcf";
 
 // Example categories (you can extend from WP taxonomy)
 const countryCategories = [
@@ -53,16 +54,25 @@ const Countries = () => {
       let results = countries;
 
       if (selectedCategory !== "All") {
-  results = results.filter(
-    (c) => c.acf?.continent?.toLowerCase() === selectedCategory.toLowerCase()
-  );
-}
+        results = results.filter((c) => {
+          const continent = getCountryAcfString(c.acf, "continent", "Continent");
+          if (!continent) return false;
+          
+          const continentLower = continent.toLowerCase().trim();
+          const categoryLower = selectedCategory.toLowerCase().trim();
+          
+          // Check for exact match or partial match
+          return continentLower === categoryLower || 
+                 continentLower.includes(categoryLower) ||
+                 categoryLower.includes(continentLower);
+        });
+      }
 
       if (searchTerm) {
         results = results.filter(
           (c) =>
             c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            c.acf?.capital?.toLowerCase().includes(searchTerm.toLowerCase())
+            (getCountryAcfString(c.acf, "capital_city", "Capital_City")?.toLowerCase() || "").includes(searchTerm.toLowerCase())
         );
       }
 
@@ -75,13 +85,26 @@ const Countries = () => {
   }, [searchTerm, selectedCategory, countries]);
 
   const loadMore = () => {
-    const results = countries.filter(
-      (c) =>
-        (selectedCategory === "All" ||
-          c.acf?.language?.toLowerCase() === selectedCategory.toLowerCase()) &&
-        (c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          c.acf?.capital?.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const results = countries.filter((c) => {
+      // Continent filtering
+      const continentMatch = selectedCategory === "All" || (() => {
+        const continent = getCountryAcfString(c.acf, "continent", "Continent");
+        if (!continent) return false;
+        
+        const continentLower = continent.toLowerCase().trim();
+        const categoryLower = selectedCategory.toLowerCase().trim();
+        
+        return continentLower === categoryLower || 
+               continentLower.includes(categoryLower) ||
+               categoryLower.includes(continentLower);
+      })();
+      
+      // Search filtering
+      const searchMatch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (getCountryAcfString(c.acf, "capital_city", "Capital_City")?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+      
+      return continentMatch && searchMatch;
+    });
 
     const nextPage = page + 1;
     setFiltered(results.slice(0, nextPage * 12));
@@ -158,46 +181,49 @@ const Countries = () => {
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filtered.map((country) => (
-                    <Link
-                      key={country.id}
-                      to={`/country/${country.slug}`}
-                      className="group"
-                    >
-                      <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 bg-card border-0 h-full">
-                        <div className="relative h-48 overflow-hidden">
-                          <img
-                            src={country.featured_media_url || '/placeholder.svg'}
-                            srcSet={country.featured_media_srcset}
-                            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                            alt={`${country.name} image`}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                          <Badge className="absolute top-4 right-4 bg-white/90 text-foreground">
-                            {country.acf?.capital || "Unknown Capital"}
-                          </Badge>
-                        </div>
+                  {filtered.map((country) => {
+                    const acf = country.acf;
+                    const displayName = getCountryAcfString(acf, "country_name") || country.name;
+                    const tagline = getCountryAcfString(acf, "tagline") || country.description;
 
-                        <CardContent className="p-6 space-y-4">
-                          <h3 className="font-display text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                            {country.name}
-                          </h3>
-                          <p className="text-muted-foreground line-clamp-3">
-                            {country.acf.tagline}
-                          </p>
-
-                         
-
-                          <div className="text-primary font-medium group-hover:text-primary-dark transition-colors pt-2">
-                            Explore ?
+                    return (
+                      <Link
+                        key={country.id}
+                        to={`/country/${country.slug}`}
+                        className="group"
+                      >
+                        <Card className="overflow-hidden hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 bg-card border-0 h-full">
+                          <div className="relative h-48 overflow-hidden">
+                            <img
+                              src={country.featured_media_url || '/placeholder.svg'}
+                              srcSet={country.featured_media_srcset}
+                              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                              alt={`${displayName} image`}
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <Badge className="absolute top-4 right-4 bg-white/90 text-foreground">
+                              Country
+                            </Badge>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
+
+                          <CardContent className="p-6 space-y-4">
+                            <h3 className="font-display text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                              {displayName}
+                            </h3>
+                            <p className="text-muted-foreground line-clamp-3">
+                              {tagline}
+                            </p>
+                            <div className="text-primary font-medium group-hover:text-primary-dark transition-colors pt-4">
+                              {"Read more ->"}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
                 </div>
 
                 {hasMore && (

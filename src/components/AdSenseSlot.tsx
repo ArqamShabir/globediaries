@@ -16,9 +16,10 @@ const AdSenseSlot = ({
   const adRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
+    if (typeof window !== 'undefined' && window.adsbygoogle) {
       try {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.push({});
       } catch (error) {
         console.error('AdSense error:', error);
       }
@@ -26,7 +27,7 @@ const AdSenseSlot = ({
   }, []);
 
   return (
-    <div className={`adsense-container ${className}`} style={style}>
+    <div className={`adsense-container ${className}`} style={{display:'none'}}>
       <div className="text-xs text-muted-foreground text-center mb-2">Advertisement</div>
       <ins
         className="adsbygoogle block"
