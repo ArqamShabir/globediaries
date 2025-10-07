@@ -10,6 +10,7 @@ import ContentRenderer from '@/components/ContentRenderer';
 import { fetchWordPressCountryBySlug, fetchCitiesByCountrySlug, fetchWordPressCountries } from '@/data/wordpress';
 import { fetchWordPressPosts, formatBlogPost } from '@/data/blogs';
 import SEO from '@/components/SEO';
+import WordPressContent from '@/components/WordPressContent';
 import {
   Carousel,
   CarouselContent,
@@ -164,10 +165,10 @@ const Country: React.FC = () => {
       <Header />
       <SEO title={`${countryTitle} Travel Guide | GlobeDiaries`} description={tagline} image={country.featured_media_full_url || country.featured_media_url} />
       <main>
-        <section className="relative md:h-[70vh] overflow-hidden">
+        <section style={{padding: '30px 20px'}} className="relative md:h-[70vh] overflow-hidden">
           <img src={country.featured_media_full_url || country.featured_media_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=2000&h=1200&fit=crop'} alt={`${countryTitle} hero`} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40" />
-          <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+          <div className="relative z-10 container mx-auto px-0 h-full flex items-center">
             <div className="max-w-4xl text-white">
               <Link to="/" className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors group">
                 <ArrowLeft className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
@@ -179,14 +180,14 @@ const Country: React.FC = () => {
           </div>
         </section>
 
-        <section className="py-12 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-stretch">
-              <div className="lg:col-span-2 flex flex-col space-y-8">
+        <section className="lg:py-12 bg-background">
+          <div className="container mx-auto px-0">
+            <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-12 items-stretch">
+              <div style={{padding:' 1.6rem'}} className="lg:col-span-2 flex flex-col space-y-8">
                 <div className="flex-1">
                   <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">Discover {countryTitle}</h2>
                   <div className="flex-1 overflow-hidden">
-                    <ContentRenderer content={country.content || ''} showFullContent={false} maxHeight={'20em'} collapseAtChars={600} previewMode="mask" scrollOnToggle />
+                    <WordPressContent content={country.content || ''} />
                   </div>
                 </div>
 
@@ -195,7 +196,7 @@ const Country: React.FC = () => {
 
               <aside id="country-sidebar" className="space-y-6">
                 <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-0 shadow-elevated h-full">
-                  <h3 className="font-display text-xl font-bold text-foreground mb-4 flex items-center"><Globe className="mr-2 h-5 w-5 text-primary" />Country Information</h3>
+                  <h3 className="font-display text-xl font-bold text-foreground mb-4 flex items-center">Country Information</h3>
                   <div className="space-y-4">
                     {infoRows.map((row) => (
                       <div key={row.label} className="flex items-start space-x-3">
@@ -233,7 +234,7 @@ const Country: React.FC = () => {
                       <CardContent className="p-4 space-y-2">
                         <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{city.name}</h3>
                         <p className="text-muted-foreground text-sm line-clamp-2">{(city as any)?.acf?.cultural_vibe || city.description}</p>
-                        <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">Read more →</div>
+                        <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">Read more {'>'}</div>
                       </CardContent>
                     </Card>
                   </Link>
@@ -289,5 +290,11 @@ const Country: React.FC = () => {
 };
 
 export default Country;
+
+
+
+
+
+
 
 

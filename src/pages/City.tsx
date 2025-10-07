@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdSenseSlot from '@/components/AdSenseSlot';
 import ContentRenderer from '@/components/ContentRenderer';
+import WordPressContent from '@/components/WordPressContent';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -122,102 +123,96 @@ const City = () => {
         
 
         {/* Hero Section */}
-        <section className="relative h-[60vh] md:h-[70vh] overflow-hidden">
+        <section className="relative h-[60vh] md:h-[70vh] overflow-hidden md:mt-0">
           <img 
             src={city.featured_media_url || 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&h=800&fit=crop'}
             alt={`${cityName} hero`}
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-              <div className="container mx-auto">
-                <div className="max-w-4xl">
-                  {countryId && (
-                    <Link 
-                      to={`/country/${countryId}`} 
-                      className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors group"
-                    >
-                      <ArrowLeft className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-                      Back to {countryId}
-                    </Link>
+          <div className="absolute top-1/2 -translate-y-1/2 md:bottom-0 left-0 right-0 p-4 md:p-8">
+            <div className="container mx-auto">
+              <div className="max-w-4xl">
+                {countryId && (
+                  <Link 
+                    to={`/country/${countryId}`} 
+                    className="inline-flex items-center text-white/80 hover:text-white mb-4 md:mb-6 transition-colors group"
+                  >
+                    <ArrowLeft className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+                    Back to {countryId}
+                  </Link>
+                )}
+                
+                <h1 className="font-display text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-4 md:mb-6 leading-tight">
+                  {cityName}
+                </h1>
+                <p className="text-lg md:text-xl lg:text-2xl text-white/90 max-w-3xl leading-relaxed mb-4 md:mb-6">
+                  {culturalVibe || city.description}
+                </p>
+                <div className="flex flex-wrap items-center gap-3 md:gap-6 text-white/80 text-sm md:text-base">
+                  {countryName && (
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-4 w-4 md:h-5 md:w-5" />
+                      <span className="capitalize">{countryName}</span>
+                    </div>
                   )}
-                  
-                  <h1 className="font-display text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                    {cityName}
-                  </h1>
-                  <p className="text-xl md:text-2xl text-white/90 max-w-3xl leading-relaxed mb-6">
-                    {culturalVibe || city.description}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-6 text-white/80">
-                    {countryName && (
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="h-5 w-5" />
-                        <span className="capitalize">{countryName}</span>
-                      </div>
-                    )}
-                    {bestTimeCity && (
-                      <div className="flex items-center space-x-2">
-                        <Clock className="h-5 w-5" />
-                        <span>Best: {bestTimeCity}</span>
-                      </div>
-                    )}
-                    {cityPopulation && (
-                      <div className="flex items-center space-x-2">
-                        <Users className="h-5 w-5" />
-                        <span>Pop: {cityPopulation}</span>
-                      </div>
-                    )}
-                    {cityTimeZone && (
-                      <div className="flex items-center space-x-2">
-                        <Navigation className="h-5 w-5" />
-                        <span>TZ: {cityTimeZone}</span>
-                      </div>
-                    )}
-                  </div>
+                  {bestTimeCity && (
+                    <div className="flex items-center space-x-2">
+                      <Clock className="h-4 w-4 md:h-5 md:w-5" />
+                      <span>Best: {bestTimeCity}</span>
+                    </div>
+                  )}
+                  {cityPopulation && (
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-4 w-4 md:h-5 md:w-5" />
+                      <span>Pop: {cityPopulation}</span>
+                    </div>
+                  )}
+                  {cityTimeZone && (
+                    <div className="flex items-center space-x-2">
+                      <Navigation className="h-4 w-4 md:h-5 md:w-5" />
+                      <span>TZ: {cityTimeZone}</span>
+                    </div>
+                  )}
                 </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="py-12 bg-background">
-          <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+        <section className="py-8 md:py-12 bg-background">
+          <div style={{padding:' 1.6rem'}} className="container mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-12 items-start">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-12">
+            <div className="lg:col-span-2 space-y-8 md:space-y-12">
               {/* City Overview */}
               <section>
-                <h2 className="font-display text-4xl font-bold mb-8">
+                <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-bold mb-6 md:mb-8">
                   Discover {cityName}
                 </h2>
-                <ContentRenderer 
+                <WordPressContent 
                   content={city.content}
-                  excerpt={city.excerpt}
-                  className="mb-8"
-                  showFullContent={false}
-                  maxHeight="20em"
-                  collapseAtChars={600}
-                  previewMode="mask"
-                  scrollOnToggle
+                  className="mb-6 md:mb-8"
                 />
               </section>
 
               {/* Top Attractions */}
               {attractions.length > 0 && (
                 <section>
-                  <h2 className="font-display text-3xl font-bold mb-8 flex items-center">
-                    <Camera className="h-8 w-8 mr-3 text-primary" />
+                  <h2 className="font-display text-2xl md:text-3xl font-bold mb-6 md:mb-8 flex items-center">
+                    <Camera className="h-6 w-6 md:h-8 md:w-8 mr-2 md:mr-3 text-primary" />
                     Must-Visit Attractions
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {attractions.map((attraction, index) => (
                       <Card key={index} className="group hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-card to-muted/20">
-                        <CardContent className="p-6">
-                          <div className="flex items-start space-x-4">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Star className="h-6 w-6 text-primary" />
+                        <CardContent style={{paddingLeft:'0'}} className="pys-4 md:p-6">
+                          <div className="flex items-start space-x-3 md:space-x-4">
+                            <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Star className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
+                              <h3 className="font-display text-base md:text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
                                 {attraction}
                               </h3>
                               <p className="text-muted-foreground text-sm">
@@ -245,19 +240,19 @@ const City = () => {
               {/* Travel Tips */}
               {tips.length > 0 && (
                 <section>
-                  <h2 className="font-display text-3xl font-bold mb-8 flex items-center">
-                    <Utensils className="h-8 w-8 mr-3 text-primary" />
+                  <h2 className="font-display text-2xl md:text-3xl font-bold mb-6 md:mb-8 flex items-center">
+                    <Utensils className="h-6 w-6 md:h-8 md:w-8 mr-2 md:mr-3 text-primary" />
                     Essential Travel Tips
                   </h2>
                   <Card className="border-0 bg-gradient-to-br from-card to-muted/20 shadow-elevated">
-                    <CardContent className="p-8">
-                      <div className="grid gap-6">
+                    <CardContent className="p-4 md:p-8">
+                      <div className="grid gap-4 md:gap-6">
                         {tips.map((tip, index) => (
-                          <div key={index} className="flex items-start space-x-4 p-4 rounded-lg bg-background/50">
-                            <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0">
+                          <div key={index} className="flex items-start space-x-3 md:space-x-4 p-3 md:p-4 rounded-lg bg-background/50">
+                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs md:text-sm font-bold flex-shrink-0">
                               {index + 1}
                             </div>
-                            <p className="text-foreground leading-relaxed">{tip}</p>
+                            <p className="text-foreground leading-relaxed text-sm md:text-base">{tip}</p>
                           </div>
                         ))}
                       </div>
@@ -268,96 +263,95 @@ const City = () => {
             </div>
 
             {/* Sidebar */}
-            <aside className="space-y-6">
+            <aside className="space-y-4 md:space-y-6">
               {/* Ad Space */}
-              <AdSenseSlot adSlot="1111111111" className="bg-muted/20 rounded-lg p-4" />
+              <AdSenseSlot adSlot="1111111111" className="bg-muted/20 rounded-lg p-3 md:p-4" />
               
               {/* City Information */}
-              <Card className="p-6 bg-gradient-to-br from-card to-muted/20 border-0 shadow-elevated">
+              <Card style={{marginTop:'0'}} className="p-4 md:p-6 bg-gradient-to-br from-card to-muted/20 border-0 shadow-elevated">
                 <CardContent className="p-0">
-                  <h3 className="font-display text-xl font-bold text-foreground mb-6 flex items-center">
-                    <MapPin className="mr-2 h-5 w-5 text-primary" />
+                  <h3 className="font-display text-xl md:text-xl font-bold text-foreground mb-4 md:mb-6 flex items-center">
                     City Information
                   </h3>
-                  <div className="space-y-6">
+                  <div className="space-y-4 md:space-y-6">
                     {countryName && (
                       <div className="flex items-start space-x-3">
-                        <MapPin className="h-5 w-5 text-primary mt-1" />
+                        <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Country</div>
-                          <div className="text-muted-foreground capitalize">{countryName}</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Country</div>
+                          <div className="text-muted-foreground capitalize text-sm md:text-base">{countryName}</div>
                         </div>
                       </div>
                     )}
                     {cityPopulation && (
                       <div className="flex items-start space-x-3">
-                        <Users className="h-5 w-5 text-primary mt-1" />
+                        <Users className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Population</div>
-                          <div className="text-muted-foreground">{cityPopulation}</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Population</div>
+                          <div className="text-muted-foreground text-sm md:text-base">{cityPopulation}</div>
                         </div>
                       </div>
                     )}
                     {bestTimeCity && (
                       <div className="flex items-start space-x-3">
-                        <Clock className="h-5 w-5 text-primary mt-1" />
+                        <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Best Time to Visit</div>
-                          <div className="text-muted-foreground">{bestTimeCity}</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Best Time to Visit</div>
+                          <div className="text-muted-foreground text-sm md:text-base">{bestTimeCity}</div>
                         </div>
                       </div>
                     )}
                     {typeof acf.coordinates === 'object' && acf.coordinates && 'lat' in (acf.coordinates as any) && 'lng' in (acf.coordinates as any) && (
                       <div className="flex items-start space-x-3">
-                        <Navigation className="h-5 w-5 text-primary mt-1" />
+                        <Navigation className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Coordinates</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Coordinates</div>
                            <div className="text-muted-foreground text-xs font-mono">{(acf.coordinates as any).lat}, {(acf.coordinates as any).lng}</div>
                         </div>
                       </div>
                     )}
                     {language && (
                       <div className="flex items-start space-x-3">
-                        <LangIcon className="h-5 w-5 text-primary mt-1" />
+                        <LangIcon className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Language</div>
-                          <div className="text-muted-foreground">{language}</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Language</div>
+                          <div className="text-muted-foreground text-sm md:text-base">{language}</div>
                         </div>
                       </div>
                     )}
                     {culturalVibe && (
                       <div className="flex items-start space-x-3">
-                        <Globe className="h-5 w-5 text-primary mt-1" />
+                        <Globe className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Overview</div>
-                          <div className="text-muted-foreground">{culturalVibe}</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Overview</div>
+                          <div className="text-muted-foreground text-sm md:text-base">{culturalVibe}</div>
                         </div>
                       </div>
                     )}
                     {localFood && (
                       <div className="flex items-start space-x-3">
-                        <Utensils className="h-5 w-5 text-primary mt-1" />
+                        <Utensils className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Local food to try</div>
-                          <div className="text-muted-foreground">{localFood}</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Local food to try</div>
+                          <div className="text-muted-foreground text-sm md:text-base">{localFood}</div>
                         </div>
                       </div>
                     )}
                     {experiences.length > 0 && (
                       <div className="flex items-start space-x-3">
-                        <PartyPopper className="h-5 w-5 text-primary mt-1" />
+                        <PartyPopper className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Top experiences</div>
-                          <div className="text-muted-foreground">{experiences.join(', ')}</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Top experiences</div>
+                          <div className="text-muted-foreground text-sm md:text-base">{experiences.join(', ')}</div>
                         </div>
                       </div>
                     )}
                     {transport.length > 0 && (
                       <div className="flex items-start space-x-3">
-                        <Bus className="h-5 w-5 text-primary mt-1" />
+                        <Bus className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                         <div>
-                          <div className="font-semibold text-foreground">Transport</div>
-                          <div className="text-muted-foreground">{transport.join(', ')}</div>
+                          <div className="font-semibold text-foreground text-sm md:text-base">Transport</div>
+                          <div className="text-muted-foreground text-sm md:text-base">{transport.join(', ')}</div>
                         </div>
                       </div>
                     )}
@@ -368,109 +362,22 @@ const City = () => {
               
 
               {/* Ad Space */}
-              <AdSenseSlot adSlot="2222222222" className="bg-muted/20 rounded-lg p-4" />
+              <AdSenseSlot adSlot="2222222222" className="bg-muted/20 rounded-lg p-3 md:p-4" />
             </aside>
-
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-12">
-              {/* City Overview */}
-              <section>
-                <h2 className="font-display text-4xl font-bold mb-8">
-                  Discover {city.name}
-                </h2>
-                <ContentRenderer 
-                  content={city.content}
-                  excerpt={city.excerpt}
-                  className="mb-8"
-                  showFullContent={false}
-                  maxHeight="20em"
-                  collapseAtChars={600}
-                  previewMode="mask"
-                  scrollOnToggle
-                />
-              </section>
-
-              {/* Top Attractions */}
-              {attractions.length > 0 && (
-                <section>
-                  <h2 className="font-display text-3xl font-bold mb-8 flex items-center">
-                    <Camera className="h-8 w-8 mr-3 text-primary" />
-                    Must-Visit Attractions
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {attractions.map((attraction, index) => (
-                      <Card key={index} className="group hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-card to-muted/20">
-                        <CardContent className="p-6">
-                          <div className="flex items-start space-x-4">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Star className="h-6 w-6 text-primary" />
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
-                                {attraction}
-                              </h3>
-                              <p className="text-muted-foreground text-sm">
-                                A must-see attraction in {city.name}
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Ad Space */}
-              <div className="my-8">
-                <AdSenseSlot 
-                  adSlot="3333333333" 
-                  adFormat="fluid"
-                  className="bg-muted/20 rounded-lg p-6"
-                  style={{ minHeight: '200px' }}
-                />
-              </div>
-
-              {/* Travel Tips */}
-              {tips.length > 0 && (
-                <section>
-                  <h2 className="font-display text-3xl font-bold mb-8 flex items-center">
-                    <Utensils className="h-8 w-8 mr-3 text-primary" />
-                    Essential Travel Tips
-                  </h2>
-                  <Card className="border-0 bg-gradient-to-br from-card to-muted/20 shadow-elevated">
-                    <CardContent className="p-8">
-                      <div className="grid gap-6">
-                        {tips.map((tip, index) => (
-                          <div key={index} className="flex items-start space-x-4 p-4 rounded-lg bg-background/50">
-                            <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0">
-                              {index + 1}
-                            </div>
-                            <p className="text-foreground leading-relaxed">{tip}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </section>
-              )}
-
-              
-            </div>
           </div>
-        </div></section>
+        </div>
+      </section>
 
-        {/* Explore Countries */}
+      {/* Explore Countries */}
         {otherCountries.length > 0 && (
-          <section className="py-12 bg-background">
+          <section className="py-8 md:py-12 bg-background">
             <div className="container mx-auto px-4">
               <div className="text-center mb-6">
                 <h2 className="font-display text-2xl md:text-3xl font-bold">Explore Countries</h2>
               </div>
               <div className="relative">
                 <Carousel opts={{ align: 'start', containScroll: 'trimSnaps', loop: true }}>
-                  <CarouselPrevious aria-label="Previous countries" />
-                  <CarouselNext aria-label="Next countries" />
+    
                   <CarouselContent className="flex items-stretch pr-4">
                     {otherCountries.map((c) => (
                       <CarouselItem key={c.id} className="basis-[85%] md:basis-1/3 lg:basis-1/4">

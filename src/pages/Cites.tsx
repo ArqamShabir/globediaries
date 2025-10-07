@@ -61,7 +61,7 @@ const Cities = () => {
             Explore All Cities
           </h1>
           <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
-            Search, filter, and discover the world’s most beloved cities.
+            Search, filter, and discover the world's most beloved cities.
           </p>
         </section>
 
@@ -180,7 +180,7 @@ const Cities = () => {
                         </div>
 
                         <div className="text-primary font-medium group-hover:text-primary-dark transition-colors pt-2">
-                          Explore ?
+                          Explore {'>'}
                         </div>
                       </CardContent>
                     </Card>
@@ -198,4 +198,5 @@ const Cities = () => {
 };
 
 export default Cities;
+
 

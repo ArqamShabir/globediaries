@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Star, Camera } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,7 +25,7 @@ const PopularCities = () => {
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-12">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">Popular Cities</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">Loading cities…€¦</p>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">Loading cities...</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -89,7 +89,7 @@ const PopularCities = () => {
                   <h3 className="font-display text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{city.name}</h3>
                   <p className="text-muted-foreground text-sm line-clamp-2">{(city.acf as any)?.cultural_vibe || city.description}</p>
                   <div className="text-primary font-medium group-hover:text-primary-dark transition-colors">
-                    Read more →
+                    Read more {'>'}
                   </div>
                 </CardContent>
               </Card>
@@ -111,7 +111,5 @@ const PopularCities = () => {
 };
 
 export default PopularCities;
-
-
 
 

@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import AdSenseSlot from "@/components/AdSenseSlot";
 import { fetchWordPressPost, fetchWordPressPostBySlug, formatBlogPost, fetchWordPressPosts } from "@/data/blogs";
 import SEO from "@/components/SEO";
+import WordPressContent from "@/components/WordPressContent";
 
 const BlogPost = () => {
   const { blogId } = useParams();
@@ -168,10 +169,7 @@ const BlogPost = () => {
 
             {/* Article Content */}
             <article className="prose prose-lg max-w-none">
-              <div 
-                className="prose prose-lg max-w-none text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-a:text-primary"
-                dangerouslySetInnerHTML={{ __html: blog.content }}
-              />
+              <WordPressContent content={blog.content} />
             </article>
 
             <AdSenseSlot 

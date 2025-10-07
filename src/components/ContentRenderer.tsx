@@ -194,6 +194,82 @@ const ContentRenderer = ({
         markEnhanced(details);
       }
     });
+    // Rank Math FAQ blocks
+    container.querySelectorAll<HTMLElement>('.rank-math-block').forEach((rankBlock) => {
+      if (isEnhanced(rankBlock)) return;
+      markEnhanced(rankBlock);
+      rankBlock.classList.add(
+        'not-prose',
+        'space-y-4',
+        'rounded-3xl',
+        'bg-muted/40',
+        'p-6',
+        'md:p-8',
+        'border',
+        'border-border/60',
+        'shadow-sm'
+      );
+
+      const list = rankBlock.querySelector<HTMLElement>('.rank-math-list');
+      if (list && !isEnhanced(list)) {
+        markEnhanced(list);
+        list.classList.add('space-y-4');
+      }
+
+      rankBlock.querySelectorAll<HTMLElement>('.rank-math-list-item').forEach((item) => {
+        if (isEnhanced(item)) return;
+        markEnhanced(item);
+        item.classList.add(
+          'rounded-2xl',
+          'bg-background',
+          'shadow-md',
+          'border',
+          'border-border/70',
+          'p-6',
+          'md:p-8',
+          'transition-transform',
+          'duration-300',
+          'hover:-translate-y-1',
+          'hover:shadow-elevated',
+          'md:flex',
+          'md:items-center',
+          'md:gap-6'
+        );
+
+        const question = item.querySelector<HTMLElement>('.rank-math-question');
+        if (question && !isEnhanced(question)) {
+          markEnhanced(question);
+          question.classList.add('font-display', 'text-xl', 'font-semibold', 'text-foreground', 'mb-3');
+        }
+
+        const answer = item.querySelector<HTMLElement>('.rank-math-answer');
+        if (answer && !isEnhanced(answer)) {
+          markEnhanced(answer);
+          answer.classList.add('text-muted-foreground', 'leading-relaxed', 'space-y-3');
+        }
+
+        const image = item.querySelector<HTMLImageElement>('.rank-math-answer img, img.alignright');
+        if (image) {
+          image.classList.remove('alignright');
+          image.classList.add(
+            'rounded-xl',
+            'object-cover',
+            'w-24',
+            'h-24',
+            'md:w-32',
+            'md:h-32',
+            'md:ml-auto',
+            'md:order-2',
+            'shadow-sm'
+          );
+          const imageParent = image.parentElement;
+          if (imageParent && imageParent.classList.contains('rank-math-answer')) {
+            imageParent.classList.add('md:flex', 'md:flex-row-reverse', 'md:items-center', 'md:gap-6');
+          }
+        }
+      });
+    });
+
 
     // Code blocks
     container.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
